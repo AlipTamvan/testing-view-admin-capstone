@@ -9,8 +9,10 @@ import {
   Search,
   Settings,
   Users,
+  User,
   X,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const Sidebar = ({ className, onClose }) => (
   <div
@@ -26,17 +28,21 @@ const Sidebar = ({ className, onClose }) => (
     </div>
     <nav className="space-y-4 flex-grow">
       {[
-        { icon: PieChart, label: "Dashboard" },
-        { icon: MessageSquare, label: "Complaint" },
-        { icon: Users, label: "Public Services" },
-        { icon: Settings, label: "Category" },
-        { icon: Users, label: "User" },
-        { icon: Settings, label: "Setting" },
-      ].map(({ icon: Icon, label }) => (
+        { icon: PieChart, label: "Dashboard", path: "/" },
+        { icon: MessageSquare, label: "Complaint", path: "/complaint" },
+        { icon: Users, label: "Public Services", path: "/public-services" },
+        { icon: Settings, label: "Category", path: "/category" },
+        { icon: User, label: "User", path: "/user" },
+        { icon: Settings, label: "Setting", path: "/setting" },
+      ].map(({ icon: Icon, label, path }) => (
         <a
           key={label}
-          href="#"
-          className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          href={path}
+          className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
+            location.pathname === path
+              ? "bg-white text-indigo-700" // Active styles
+              : "text-white hover:text-indigo-200 hover:bg-indigo-600" // Default styles
+          }`}
         >
           <Icon size={20} />
           <span className="text-sm md:text-base">{label}</span>
@@ -55,93 +61,107 @@ const Sidebar = ({ className, onClose }) => (
   </div>
 );
 
-const MetricCard = ({ title, value }) => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className="text-xl md:text-2xl font-bold mt-1">{value}</p>
-  </div>
-);
-
-const Chart = () => (
-  <div className="h-[200px] md:h-[300px] mt-4">
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      Chart Placeholder
-    </div>
-  </div>
-);
-
-const RecentComplaints = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent Complaint</h2>
-    <div className="space-y-4">
-      {[
-        {
-          name: "Francisco Gibbs",
-          complaint: "Kebakaran hutan",
-          time: "Just now",
-        },
-        {
-          name: "Adam Kurniawan",
-          complaint: "Banjir",
-          time: "Friday 12:26PM",
-        },
-      ].map((item, index) => (
-        <div
-          key={index}
-          className="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg"
-        >
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate">{item.name}</p>
-            <p className="text-sm text-gray-500 truncate">
-              Created Complaint {item.complaint}
-            </p>
-            <p className="text-xs text-gray-400">{item.time}</p>
+const ComplaintList = () => (
+  <div className="space-y-4">
+    {[
+      {
+        name: "Adam Kurniawan",
+        complaint: "Terjadi kebakaran pada pukul 20.00 di cinere jawa barat",
+        status: "PROGRESS",
+      },
+      {
+        name: "Ariska Sari",
+        complaint: "Terjadi macet pada pukul 20.00 di cinere jawa barat",
+        status: "SELESAI",
+      },
+      {
+        name: "taehyoung",
+        complaint: "Terjadi kecelakaan pada pukul 20.00 di cinere jawa barat",
+        status: "PROGRESS",
+      },
+      {
+        name: "Aliva",
+        complaint:
+          "Terjadi pohon tumbang pada pukul 20.00 di cinere jawa barat",
+        status: "PROGRESS",
+      },
+      {
+        name: "Restanti",
+        complaint: "Terjadi pembegalan pada pukul 20.00 di cinere jawa barat",
+        status: "SELESAI",
+      },
+    ].map((item, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+            {/* Profile image placeholder that scales responsively */}
+            <div className="w-full h-full bg-gray-300 rounded-full"></div>
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900">{item.name}</h3>
+            <p className="text-sm text-gray-600 max-w-xl">{item.complaint}</p>
           </div>
         </div>
-      ))}
-    </div>
+        <div className="flex items-center gap-4">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              item.status === "PROGRESS"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-green-100 text-green-800"
+            }`}
+          >
+            {item.status}
+          </span>
+        </div>
+      </div>
+    ))}
   </div>
 );
 
-const RecentUsers = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent User</h2>
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[500px]">
-        <thead>
-          <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <th className="pb-2 px-2">No Complaint</th>
-            <th className="pb-2 px-2">Date Created</th>
-            <th className="pb-2 px-2">Client</th>
-            <th className="pb-2 px-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[1, 2, 3].map((_, index) => (
-            <tr key={index} className="border-t hover:bg-gray-50">
-              <td className="py-2 px-2">ZR-22222</td>
-              <td className="py-2 px-2">3 Jul, 2020</td>
-              <td className="py-2 px-2">Adam kurniawan</td>
-              <td className="py-2 px-2">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  PAID
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+const Pagination = () => (
+  <div className="flex items-center justify-center gap-2 mt-6">
+    <button className="hidden md:inline px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+      « Previous
+    </button>
+    <button className="md:hidden px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+      «
+    </button>
+
+    {[1, 2, 3].map((page) => (
+      <button
+        key={page}
+        className={`px-3 py-1 rounded ${
+          page === 1
+            ? "bg-[#4338CA] text-white"
+            : "text-gray-600 hover:text-gray-900"
+        }`}
+      >
+        {page}
+      </button>
+    ))}
+    <span className="px-2">...</span>
+    <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+      10
+    </button>
+    <button className="md:hidden px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+      »
+    </button>
+    <button className="hidden md:inline px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+      Next »
+    </button>
   </div>
 );
 
 export default function Dashboard() {
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
       <Sidebar className="hidden md:block w-64 fixed h-full" />
 
       {isSidebarOpen && (
@@ -210,23 +230,15 @@ export default function Dashboard() {
         </header>
 
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard title="Complaint Masuk" value={20} />
-              <MetricCard title="Feedback Selesai" value={20} />
-              <MetricCard title="Category Complaint" value={20} />
-              <MetricCard title="Import CSV" value={20} />
-            </div>
-
-            <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-              <h2 className="text-lg font-semibold mb-4">Complaint Grafik</h2>
-              <Chart />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecentComplaints />
-              <RecentUsers />
-            </div>
+          <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
+            {/* <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Semua Laporan
+              </h2>
+              <h2 className="text-xl font-semibold text-gray-900">Status</h2>
+            </div> */}
+            <ComplaintList />
+            <Pagination />
           </div>
         </main>
       </div>
