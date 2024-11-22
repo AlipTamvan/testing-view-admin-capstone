@@ -1,25 +1,27 @@
+// Sidebar.js
+import React from "react";
 import {
+  Bell,
+  ChevronDown,
   LogOut,
+  Menu,
   MessageSquare,
   PieChart,
   Settings,
   Users,
+  User,
   X,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-export const Sidebar = ({ className, onClose }) => {
-  const location = useLocation();
-
-  // Menu items
-  const menuItems = [
-    { icon: PieChart, label: "Dashboard", path: "/" },
-    { icon: MessageSquare, label: "Complaint", path: "/complaint" },
-    { icon: Users, label: "Public Services", path: "/public-services" },
-    { icon: Settings, label: "Category", path: "/category" },
-    { icon: Users, label: "User", path: "/user" },
-    { icon: Settings, label: "Setting", path: "/setting" },
-  ];
+const Sidebar = ({ className, onClose }) => {
+  const isActivePath = (path) => {
+    const location = window.location; // Using window.location for location outside hooks context
+    if (path === "/") {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div
@@ -34,19 +36,26 @@ export const Sidebar = ({ className, onClose }) => {
         )}
       </div>
       <nav className="space-y-4 flex-grow">
-        {menuItems.map(({ icon: Icon, label, path }) => (
-          <a
+        {[
+          { icon: PieChart, label: "Dashboard", path: "/" },
+          { icon: MessageSquare, label: "Complaint", path: "/complaint" },
+          { icon: Users, label: "Public Services", path: "/public-services" },
+          { icon: Settings, label: "Category", path: "/category" },
+          { icon: User, label: "User", path: "/user" },
+          { icon: Settings, label: "Setting", path: "/setting" },
+        ].map(({ icon: Icon, label, path }) => (
+          <Link
             key={label}
-            href={path}
+            to={path}
             className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
-              location.pathname === path
-                ? "bg-white text-indigo-700" // Active styles
-                : "text-white hover:text-indigo-200 hover:bg-indigo-600" // Default styles
+              isActivePath(path)
+                ? "bg-white text-indigo-700"
+                : "text-white hover:text-indigo-200 hover:bg-indigo-600"
             }`}
           >
             <Icon size={20} />
             <span className="text-sm md:text-base">{label}</span>
-          </a>
+          </Link>
         ))}
       </nav>
       <div>
@@ -61,3 +70,5 @@ export const Sidebar = ({ className, onClose }) => {
     </div>
   );
 };
+
+export default Sidebar;

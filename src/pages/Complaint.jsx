@@ -12,57 +12,68 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
-const Sidebar = ({ className, onClose }) => (
-  <div
-    className={`bg-indigo-700 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className}`}
-  >
-    <div className="flex items-center justify-between">
-      <h1 className="text-xl md:text-2xl font-bold">Laporin</h1>
-      {onClose && (
-        <button onClick={onClose} className="md:hidden">
-          <X size={24} />
-        </button>
-      )}
-    </div>
-    <nav className="space-y-4 flex-grow">
-      {[
-        { icon: PieChart, label: "Dashboard", path: "/" },
-        { icon: MessageSquare, label: "Complaint", path: "/complaint" },
-        { icon: Users, label: "Public Services", path: "/public-services" },
-        { icon: Settings, label: "Category", path: "/category" },
-        { icon: User, label: "User", path: "/user" },
-        { icon: Settings, label: "Setting", path: "/setting" },
-      ].map(({ icon: Icon, label, path }) => (
+const Sidebar = ({ className, onClose }) => {
+  const location = useLocation();
+  const isActivePath = (path) => {
+    // Untuk path '/', kita hanya memeriksa apakah path tersebut persis '/'
+    if (path === "/") {
+      return location.pathname === path; // Aktif hanya jika persis '/'
+    }
+    // Memeriksa apakah path saat ini dimulai dengan path yang relevan
+    return location.pathname.startsWith(path); // Mengatasi halaman detail (misalnya '/complaint/:id')
+  };
+
+  return (
+    <div
+      className={`bg-indigo-700 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className}`}
+    >
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl md:text-2xl font-bold">Laporin</h1>
+        {onClose && (
+          <button onClick={onClose} className="md:hidden">
+            <X size={24} />
+          </button>
+        )}
+      </div>
+      <nav className="space-y-4 flex-grow">
+        {[
+          { icon: PieChart, label: "Dashboard", path: "/" },
+          { icon: MessageSquare, label: "Complaint", path: "/complaint" },
+          { icon: Users, label: "Public Services", path: "/public-services" },
+          { icon: Settings, label: "Category", path: "/category" },
+          { icon: User, label: "User", path: "/user" },
+          { icon: Settings, label: "Setting", path: "/setting" },
+        ].map(({ icon: Icon, label, path }) => (
+          <Link
+            key={label}
+            to={path}
+            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
+              isActivePath(path)
+                ? "bg-white text-indigo-700" // Active styles
+                : "text-white hover:text-indigo-200 hover:bg-indigo-600" // Default styles
+            }`}
+          >
+            <Icon size={20} />
+            <span className="text-sm md:text-base">{label}</span>
+          </Link>
+        ))}
+      </nav>
+      <div>
         <a
-          key={label}
-          href={path}
-          className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
-            location.pathname === path
-              ? "bg-white text-indigo-700" // Active styles
-              : "text-white hover:text-indigo-200 hover:bg-indigo-600" // Default styles
-          }`}
+          href="#"
+          className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
         >
-          <Icon size={20} />
-          <span className="text-sm md:text-base">{label}</span>
+          <LogOut size={20} />
+          <span className="text-sm md:text-base">Log-Out</span>
         </a>
-      ))}
-    </nav>
-    <div>
-      <a
-        href="#"
-        className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
-      >
-        <LogOut size={20} />
-        <span className="text-sm md:text-base">Log-Out</span>
-      </a>
+      </div>
     </div>
-  </div>
-);
-
+  );
+};
 const ComplaintList = () => (
-  <div className="space-y-4">
+  <div className="space-y-4 md:px-4">
     {[
       {
         name: "Adam Kurniawan",
@@ -91,9 +102,10 @@ const ComplaintList = () => (
         status: "SELESAI",
       },
     ].map((item, index) => (
-      <div
+      <Link
         key={index}
-        className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm"
+        className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md"
+        to="/complaint-detail"
       >
         <div className="flex items-center gap-4">
           <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
@@ -116,7 +128,7 @@ const ComplaintList = () => (
             {item.status}
           </span>
         </div>
-      </div>
+      </Link>
     ))}
   </div>
 );
@@ -155,7 +167,7 @@ const Pagination = () => (
   </div>
 );
 
-export default function Dashboard() {
+export default function Complaint() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
