@@ -108,7 +108,7 @@ export default function ComplaintDetail() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar for Desktop */}
       <Sidebar className="hidden md:block w-64 fixed h-full" />
 

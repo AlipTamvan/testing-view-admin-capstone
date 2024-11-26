@@ -173,7 +173,7 @@ export default function Complaint() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-100">
       <Sidebar className="hidden md:block w-64 fixed h-full" />
 
       {isSidebarOpen && (

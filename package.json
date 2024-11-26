@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "d3": "^7.9.0",
+    "formik": "^2.4.6",
     "lucide-react": "^0.454.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.0",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.8",

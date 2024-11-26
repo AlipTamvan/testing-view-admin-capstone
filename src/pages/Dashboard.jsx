@@ -19,9 +19,9 @@ const Sidebar = ({ className, onClose }) => {
 
   const isActivePath = (path) => {
     if (path === "/") {
-      return location.pathname === path; // Aktif hanya jika persis '/'
+      return location.pathname === path; 
     }
-    return location.pathname.startsWith(path); // Mengatasi halaman detail (misalnya '/complaint/:id')
+    return location.pathname.startsWith(path); 
   };
 
   return (
