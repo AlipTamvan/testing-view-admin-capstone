@@ -17,12 +17,10 @@ import { useLocation, Link } from "react-router-dom";
 const Sidebar = ({ className, onClose }) => {
   const location = useLocation();
   const isActivePath = (path) => {
-    // Untuk path '/', kita hanya memeriksa apakah path tersebut persis '/'
     if (path === "/") {
-      return location.pathname === path; // Aktif hanya jika persis '/'
+      return location.pathname === path;
     }
-    // Memeriksa apakah path saat ini dimulai dengan path yang relevan
-    return location.pathname.startsWith(path); // Mengatasi halaman detail (misalnya '/complaint/:id')
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -51,8 +49,8 @@ const Sidebar = ({ className, onClose }) => {
             to={path}
             className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
               isActivePath(path)
-                ? "bg-white text-indigo-700" // Active styles
-                : "text-white hover:text-indigo-200 hover:bg-indigo-600" // Default styles
+                ? "bg-white text-indigo-700"
+                : "text-white hover:text-indigo-200 hover:bg-indigo-600"
             }`}
           >
             <Icon size={20} />
@@ -72,66 +70,164 @@ const Sidebar = ({ className, onClose }) => {
     </div>
   );
 };
-const ComplaintList = () => (
-  <div className="space-y-4 md:px-4">
-    {[
-      {
-        name: "Adam Kurniawan",
-        complaint: "Terjadi kebakaran pada pukul 20.00 di cinere jawa barat",
-        status: "PROGRESS",
-      },
-      {
-        name: "Ariska Sari",
-        complaint: "Terjadi macet pada pukul 20.00 di cinere jawa barat",
-        status: "SELESAI",
-      },
-      {
-        name: "taehyoung",
-        complaint: "Terjadi kecelakaan pada pukul 20.00 di cinere jawa barat",
-        status: "PROGRESS",
-      },
-      {
-        name: "Aliva",
-        complaint:
-          "Terjadi pohon tumbang pada pukul 20.00 di cinere jawa barat",
-        status: "PROGRESS",
-      },
-      {
-        name: "Restanti",
-        complaint: "Terjadi pembegalan pada pukul 20.00 di cinere jawa barat",
-        status: "SELESAI",
-      },
-    ].map((item, index) => (
-      <Link
-        key={index}
-        className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md"
-        to="/complaint-detail"
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-            {/* Profile image placeholder that scales responsively */}
-            <div className="w-full h-full bg-gray-300 rounded-full"></div>
-          </div>
-          <div>
-            <h3 className="font-medium text-gray-900">{item.name}</h3>
-            <p className="text-sm text-gray-600 max-w-xl">{item.complaint}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-medium ${
-              item.status === "PROGRESS"
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-green-100 text-green-800"
-            }`}
+
+const ComplaintList = () => {
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
+
+  const complaintCategories = [
+    { value: "ALL", label: "Semua Kategori" },
+    { value: "KEBAKARAN", label: "Kebakaran" },
+    { value: "KEMACETAN", label: "Kemacetan" },
+    { value: "KECELAKAAN", label: "Kecelakaan" },
+    { value: "POHON_TUMBANG", label: "Pohon Tumbang" },
+    { value: "PEMBEGALAN", label: "Pembegalan" },
+    { value: "BANJIR", label: "Banjir" },
+    { value: "PENCURIAN", label: "Pencurian" },
+    { value: "KESEHATAN", label: "Masalah Kesehatan" },
+  ];
+
+  const complaintStatuses = [
+    { value: "ALL", label: "Semua Status" },
+    { value: "PROGRESS", label: "Dalam Proses" },
+    { value: "SELESAI", label: "Selesai" },
+    { value: "CANCEL", label: "Dibatalkan" },
+  ];
+
+  const complaintsData = [
+    {
+      name: "Adam Kurniawan",
+      complaint: "Terjadi kebakaran pada pukul 20.00 di cinere jawa barat",
+      status: "PROGRESS",
+      category: "KEBAKARAN",
+    },
+    {
+      name: "Ariska Sari",
+      complaint: "Terjadi macet pada pukul 20.00 di cinere jawa barat",
+      status: "SELESAI",
+      category: "KEMACETAN",
+    },
+    {
+      name: "taehyoung",
+      complaint: "Terjadi kecelakaan pada pukul 20.00 di cinere jawa barat",
+      status: "PROGRESS",
+      category: "KECELAKAAN",
+    },
+    {
+      name: "Aliva",
+      complaint: "Terjadi pohon tumbang pada pukul 20.00 di cinere jawa barat",
+      status: "CANCEL",
+      category: "POHON_TUMBANG",
+    },
+    {
+      name: "Restanti",
+      complaint: "Terjadi pembegalan pada pukul 20.00 di cinere jawa barat",
+      status: "SELESAI",
+      category: "PEMBEGALAN",
+    },
+    {
+      name: "Budi Setiawan",
+      complaint: "Terjadi banjir di perumahan",
+      status: "PROGRESS",
+      category: "BANJIR",
+    },
+  ];
+
+  const filteredComplaints = complaintsData.filter((item) => {
+    const categoryFilter =
+      selectedCategory === "ALL" || item.category === selectedCategory;
+    const statusFilter =
+      selectedStatus === "ALL" || item.status === selectedStatus;
+    return categoryFilter && statusFilter;
+  });
+
+  return (
+    <div className="space-y-4 md:px-4">
+      <div className="flex mb-4 gap-4">
+        {/* Filter Kategori */}
+        <div className="relative w-full md:w-64">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="appearance-none w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-8 text-gray-700"
           >
-            {item.status}
-          </span>
+            {complaintCategories.map((category) => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+            size={20}
+          />
         </div>
-      </Link>
-    ))}
-  </div>
-);
+
+        {/* Filter Status */}
+        <div className="relative w-full md:w-64">
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="appearance-none w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-8 text-gray-700"
+          >
+            {complaintStatuses.map((status) => (
+              <option key={status.value} value={status.value}>
+                {status.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+            size={20}
+          />
+        </div>
+      </div>
+
+      {/* Kondisi jika tidak ada komplain yang sesuai */}
+      {filteredComplaints.length === 0 ? (
+        <div className="p-4 text-center text-gray-600">
+          <p>
+            Tidak ada komplain dengan kategori atau status yang dipilih. Cobalah
+            memilih kategori atau status lainnya.
+          </p>
+        </div>
+      ) : (
+        filteredComplaints.map((item, index) => (
+          <Link
+            key={index}
+            className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md"
+            to="/complaint-detail"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                <div className="w-full h-full bg-gray-300 rounded-full"></div>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900">{item.name}</h3>
+                <p className="text-sm text-gray-600 max-w-xl">
+                  {item.complaint}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  item.status === "PROGRESS"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : item.status === "SELESAI"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {item.status}
+              </span>
+            </div>
+          </Link>
+        ))
+      )}
+    </div>
+  );
+};
 
 const Pagination = () => (
   <div className="flex items-center justify-center gap-2 mt-6">
@@ -243,12 +339,6 @@ export default function Complaint() {
 
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
-            {/* <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Semua Laporan
-              </h2>
-              <h2 className="text-xl font-semibold text-gray-900">Status</h2>
-            </div> */}
             <ComplaintList />
             <Pagination />
           </div>
