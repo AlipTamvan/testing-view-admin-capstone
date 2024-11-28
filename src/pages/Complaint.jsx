@@ -71,6 +71,46 @@ const Sidebar = ({ className, onClose }) => {
   );
 };
 
+const BottomNavigation = () => {
+  const location = useLocation();
+
+  const isActivePath = (path) => {
+    if (path === "/") {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const navItems = [
+    { icon: PieChart, label: "Dashboard", path: "/" },
+    { icon: MessageSquare, label: "Complaint", path: "/complaint" },
+    { icon: Users, label: "Services", path: "/public-services" },
+    { icon: Settings, label: "Category", path: "/category" },
+    { icon: User, label: "Users", path: "/users" },
+  ];
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden">
+      <div className="flex justify-around py-2">
+        {navItems.map(({ icon: Icon, label, path }) => (
+          <Link
+            key={label}
+            to={path}
+            className={`flex flex-col items-center py-1 px-2 rounded-lg ${
+              isActivePath(path)
+                ? "text-indigo-700"
+                : "text-gray-500 hover:text-indigo-700"
+            }`}
+          >
+            <Icon size={20} />
+            <span className="text-xs mt-1">{label}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ComplaintList = () => {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [selectedStatus, setSelectedStatus] = useState("ALL");
@@ -230,7 +270,7 @@ const ComplaintList = () => {
 };
 
 const Pagination = () => (
-  <div className="flex items-center justify-center gap-2 mt-6">
+  <div className="flex items-center justify-center gap-2 mt-6 ">
     <button className="hidden md:inline px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
       « Previous
     </button>
@@ -289,34 +329,14 @@ export default function Complaint() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center flex-1">
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="mr-2 md:hidden"
-                >
-                  <Menu className="h-6 w-6" />
-                </button>
-                <div
-                  className={`${
-                    isSearchOpen ? "flex" : "hidden md:flex"
-                  } items-center w-full max-w-md relative`}
-                >
+                <div className={`flex items-center w-full max-w-md relative`}>
                   <Search className="absolute left-3 h-5 w-5 text-gray-400 pointer-events-none" />
                   <input
                     type="search"
                     placeholder="Cari Disini"
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-10 pr-4 py-2 mr-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
-                <button
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="ml-2 md:hidden"
-                >
-                  <Search
-                    className={`h-6 w-6 text-gray-400 ${
-                      isSearchOpen ? "hidden" : ""
-                    }`}
-                  />
-                </button>
               </div>
 
               <div className="flex items-center space-x-4">
@@ -343,6 +363,7 @@ export default function Complaint() {
             <Pagination />
           </div>
         </main>
+        <BottomNavigation />
       </div>
     </div>
   );
