@@ -25,7 +25,7 @@ const Sidebar = ({ className, onClose }) => {
 
   return (
     <div
-      className={`bg-indigo-700 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className}`}
+      className={`bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-500 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className} transition-colors duration-300`}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-bold">Laporin</h1>
@@ -90,7 +90,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:block lg:hidden">
       <div className="flex justify-around py-2">
         {navItems.map(({ icon: Icon, label, path }) => (
           <Link
@@ -182,10 +182,9 @@ const ComplaintList = () => {
   });
 
   return (
-    <div className="space-y-4 md:px-4">
-      <div className="flex mb-4 gap-4">
-        {/* Filter Kategori */}
-        <div className="relative w-full md:w-64">
+    <div className="space-y-4 md:px-4 lg:px-4">
+      <div className="flex flex-col-2 md:flex-row mb-4 gap-4">
+        <div className="relative w-full md:w-1/2 lg:w-64">
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -203,8 +202,7 @@ const ComplaintList = () => {
           />
         </div>
 
-        {/* Filter Status */}
-        <div className="relative w-full md:w-64">
+        <div className="relative w-full md:w-1/2 lg:w-64">
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
@@ -223,7 +221,6 @@ const ComplaintList = () => {
         </div>
       </div>
 
-      {/* Kondisi jika tidak ada komplain yang sesuai */}
       {filteredComplaints.length === 0 ? (
         <div className="p-4 text-center text-gray-600">
           <p>
@@ -232,45 +229,49 @@ const ComplaintList = () => {
           </p>
         </div>
       ) : (
-        filteredComplaints.map((item, index) => (
-          <Link
-            key={index}
-            className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md"
-            to="/complaint-detail"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                <div className="w-full h-full bg-gray-300 rounded-full"></div>
+        <div className="grid grid-cols-1 gap-4">
+          {filteredComplaints.map((item, index) => (
+            <Link
+              key={index}
+              className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md"
+              to="/complaint-detail"
+            >
+              <div className="flex items-center gap-4 overflow-hidden">
+                <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                  <div className="w-full h-full bg-gray-300 rounded-full"></div>
+                </div>
+                <div className="flex-grow overflow-hidden">
+                  <h3 className="font-medium text-gray-900 truncate">
+                    {item.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 truncate max-w-full">
+                    {item.complaint}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-medium text-gray-900">{item.name}</h3>
-                <p className="text-sm text-gray-600 max-w-xl">
-                  {item.complaint}
-                </p>
+              <div className="flex items-center">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                    item.status === "PROGRESS"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : item.status === "SELESAI"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {item.status}
+                </span>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  item.status === "PROGRESS"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : item.status === "SELESAI"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {item.status}
-              </span>
-            </div>
-          </Link>
-        ))
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );
 };
 
 const Pagination = () => (
-  <div className="flex items-center justify-center gap-2 mt-6 ">
+  <div className="flex items-center justify-center gap-2 mt-6 pb-16 md:pb-8">
     <button className="hidden md:inline px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
       « Previous
     </button>
@@ -312,18 +313,6 @@ export default function Complaint() {
     <div className="flex h-screen bg-gray-100">
       <Sidebar className="hidden md:block w-64 fixed h-full" />
 
-      {isSidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 w-64 flex">
-            <Sidebar onClose={() => setIsSidebarOpen(false)} />
-          </div>
-        </div>
-      )}
-
       <div className="flex-1 flex flex-col md:ml-64">
         <header className="bg-white shadow-sm sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -350,7 +339,7 @@ export default function Complaint() {
                     <p className="text-sm font-medium">Halo ! Adam</p>
                     <p className="text-xs text-gray-500">Administrator</p>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-gray"></ChevronDown>
                 </div>
               </div>
             </div>

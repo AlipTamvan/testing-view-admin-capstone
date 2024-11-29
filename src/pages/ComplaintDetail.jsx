@@ -30,8 +30,8 @@ const Sidebar = ({ className, onClose }) => {
 
   return (
     <div
-      className={`bg-indigo-700 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className}`}
-    >
+    className={`bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-500 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className} transition-colors duration-300`}
+  >
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-bold">Laporin</h1>
         {onClose && (
@@ -95,7 +95,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:block lg:hidden">
       <div className="flex justify-around py-2">
         {navItems.map(({ icon: Icon, label, path }) => (
           <Link

@@ -26,7 +26,7 @@ const Sidebar = ({ className, onClose }) => {
 
   return (
     <div
-      className={`bg-indigo-700 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className}`}
+      className={`bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-500 text-white p-4 md:p-6 space-y-6 h-full flex flex-col ${className} transition-colors duration-300`}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-bold">Laporin</h1>
@@ -71,7 +71,6 @@ const Sidebar = ({ className, onClose }) => {
     </div>
   );
 };
-
 const BottomNavigation = () => {
   const location = useLocation();
 
@@ -91,7 +90,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg md:block lg:hidden">
       <div className="flex justify-around py-2">
         {navItems.map(({ icon: Icon, label, path }) => (
           <Link
@@ -199,22 +198,11 @@ export default function Dashboard() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar className="hidden md:block w-64 fixed h-full" />
+    <div className="flex h-screen bg-gray-100 pb-16 md:pb-16 lg:pb-0">
+      {/* Persistent Sidebar for Large Screens */}
+      <Sidebar className="hidden lg:block w-64 fixed h-full" />
 
-      {isSidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 w-64 flex">
-            <Sidebar onClose={() => setIsSidebarOpen(false)} />
-          </div>
-        </div>
-      )}
-
-      <div className="flex-1 flex flex-col md:ml-64">
+      <div className="flex-1 flex flex-col lg:ml-64">
         <header className="bg-white shadow-sm sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -224,7 +212,7 @@ export default function Dashboard() {
                   <input
                     type="search"
                     placeholder="Cari Disini"
-                    className="w-full pl-10 pr-4 mr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-10 pr-4 py-2 mr-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -267,6 +255,8 @@ export default function Dashboard() {
             </div>
           </div>
         </main>
+
+        {/* Bottom Navigation for Mobile and Tablet */}
         <BottomNavigation />
       </div>
     </div>
