@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Bell,
   ChevronDown,
@@ -16,6 +16,7 @@ import {
   FileImage,
   Pencil,
   AlignLeft,
+  Trash2,
 } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -120,25 +121,38 @@ const BottomNavigation = () => {
 };
 
 const PublicNews = () => {
+  const [categories] = useState([
+    { id: 1, name: "Pendidikan" },
+    { id: 2, name: "Infrastruktur" },
+    { id: 3, name: "Lingkungan" },
+    { id: 4, name: "Kesehatan" },
+    { id: 5, name: "Sosial" },
+  ]);
   const [newsData, setNewsData] = useState([
     {
-      image: "/placeholder-image.jpg",
+      id: 1,
+      image: null,
       title: "Edukasi Lingkungan Sejak Dini",
       date: "2024-08-27",
+      category: 3,
       content:
         "Universitas Indonesia melaksanakan program edukasi kepada siswa sekolah dasar untuk meningkatkan kesadaran mencintai lingkungan.",
     },
     {
-      image: "/placeholder-image.jpg",
+      id: 2,
+      image: null,
       title: "Trafo PLN untuk Warga Bogor",
       date: "2024-01-30",
+      category: 5,
       content:
         "Berkat aspirasi warga saat reses, masyarakat Cikaret, Bogor, kini memiliki trafo PLN yang memberikan peningkatan akses listrik lebih merata.",
     },
     {
-      image: "/placeholder-image.jpg",
+      id: 3,
+      image: null,
       title: "Peningkatan Ketangguhan Bencana",
       date: "2024-02-09",
+      category: 1,
       content:
         "Pemerintah menggalakkan program pelatihan kesiapsiagaan penting megathrust, fokus pada kesiapan dan kesejahteraan.",
     },
@@ -147,7 +161,15 @@ const PublicNews = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedNewsIndex, setSelectedNewsIndex] = useState(null);
+  const [selectedNewsItem, setSelectedNewsItem] = useState(null);
+  const [selectedNews, setSelectedNews] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredNewsData = useMemo(() => {
+    return newsData.filter((news) =>
+      news.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [newsData, searchTerm]);
 
   const NewsSchema = Yup.object().shape({
     title: Yup.string()
@@ -161,6 +183,7 @@ const PublicNews = () => {
       .min(20, "Konten terlalu pendek!")
       .max(500, "Konten terlalu panjang!")
       .required("Konten wajib diisi"),
+    category: Yup.number().required("Kategori wajib dipilih"),
     image: Yup.mixed()
       .test("fileSize", "Ukuran file terlalu besar", (value) => {
         return !value || value.size <= 5 * 1024 * 1024;
@@ -184,6 +207,7 @@ const PublicNews = () => {
   const handleCloseModal = (resetForm, isUpdate = false) => {
     resetForm();
     setSelectedImage(null);
+    setSelectedNewsItem(null);
     if (isUpdate) {
       setIsUpdateModalOpen(false);
     } else {
@@ -193,7 +217,8 @@ const PublicNews = () => {
 
   const handleAddNews = (values, { resetForm }) => {
     const newNewsItem = {
-      image: selectedImage || "/placeholder-image.jpg",
+      id: newsData.length + 1,
+      image: selectedImage || null,
       title: values.title,
       date: values.date,
       content: values.content,
@@ -207,29 +232,241 @@ const PublicNews = () => {
 
   const handleUpdateNews = (values, { resetForm }) => {
     const updatedNewsItem = {
-      image: selectedImage || newsData[selectedNewsIndex].image,
+      ...selectedNewsItem,
+      image: selectedImage || selectedNewsItem.image,
       title: values.title,
       date: values.date,
       content: values.content,
     };
 
-    const updatedNewsData = [...newsData];
-    updatedNewsData[selectedNewsIndex] = updatedNewsItem;
-    setNewsData(updatedNewsData);
+    setNewsData((prev) =>
+      prev.map((item) =>
+        item.id === updatedNewsItem.id ? updatedNewsItem : item
+      )
+    );
     setSelectedImage(null);
     setIsUpdateModalOpen(false);
     resetForm();
   };
 
-  const openUpdateModal = (news, index) => {
-    setSelectedNewsIndex(index);
+  const handleDeleteNews = () => {
+    setNewsData((prev) =>
+      prev.filter((item) => !selectedNews.includes(item.id))
+    );
+    setSelectedNews([]);
+  };
+
+  const openUpdateModal = (news) => {
+    setSelectedNewsItem(news);
     setSelectedImage(news.image);
     setIsUpdateModalOpen(true);
   };
 
+  const handleSelectNews = (id) => {
+    setSelectedNews((prev) =>
+      prev.includes(id)
+        ? prev.filter((selectedId) => selectedId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAllNews = () => {
+    if (selectedNews.length === filteredNewsData.length) {
+      setSelectedNews([]);
+    } else {
+      setSelectedNews(filteredNewsData.map((news) => news.id));
+    }
+  };
+
+  const renderNewsCard = (news) => (
+    <div key={news.id} className="rounded-lg md:p-4 mb-4 bg-white shadow-md">
+      {/* Image Section */}
+      {news.image ? (
+        <img
+          src={news.image}
+          alt={news.title}
+          className="w-full h-40 object-cover rounded-md mb-4"
+        />
+      ) : (
+        <div className="w-full h-40 bg-gray-200 rounded-md mb-4"></div>
+      )}
+
+      {/* Content Section with Icons */}
+      <div className="flex px-4 space-x-4">
+        {/* Icons Section */}
+
+        {/* Text Content Section */}
+        <div className="flex flex-col space-y-2 flex-1 pb-4">
+          <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
+            {news.title}
+          </h3>
+
+          <span className="text-xs text-gray-500">
+            {new Date(news.date).toLocaleDateString("id-ID", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </span>
+          <p className="text-sm text-gray-500 line-clamp-2">{news.content}</p>
+        </div>
+
+        <div className="flex flex-col space-y-2 justify-center items-center  mb-4">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 w-fit">
+            {categories.find((c) => c.id === news.category)?.name}
+          </span>
+          <button
+            onClick={() => {
+              setSelectedNews([news.id]);
+              handleDeleteNews();
+            }}
+            className="flex items-center justify-center w-10 h-10 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
+          >
+            <Trash2 size={20} />
+          </button>
+          <button
+            onClick={() => openUpdateModal(news)}
+            className="flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full hover:bg-indigo-200"
+          >
+            <Pencil size={20} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderNewsTable = () => (
+    <div className="md:bg-white md:shadow rounded-lg overflow-x-auto">
+      {/* Desktop View - Table Layout */}
+      <table className="w-full hidden sm:table">
+        <thead className="bg-gray-50 border-b">
+          <tr>
+            <th className="p-4 text-left">
+              <input
+                type="checkbox"
+                checked={
+                  filteredNewsData.length > 0 &&
+                  selectedNews.length === filteredNewsData.length
+                }
+                onChange={handleSelectAllNews}
+                className="form-checkbox h-5 w-5 text-indigo-600"
+              />
+            </th>
+            <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Gambar
+            </th>
+            <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Content
+            </th>
+            <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Kategori
+            </th>
+            <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Tanggal
+            </th>
+            <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Aksi
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {filteredNewsData.map((news) => (
+            <tr key={news.id} className="hover:bg-gray-50 transition-colors">
+              <td className="p-4">
+                <input
+                  type="checkbox"
+                  checked={selectedNews.includes(news.id)}
+                  onChange={() => handleSelectNews(news.id)}
+                  className="form-checkbox h-5 w-5 text-indigo-600"
+                />
+              </td>
+              <td className="p-4">
+                {news.image ? (
+                  <img
+                    src={news.image}
+                    alt={news.title}
+                    className="h-16 w-16 object-cover rounded-md"
+                  />
+                ) : (
+                  <div className="h-16 w-16 bg-gray-200 rounded-md"></div>
+                )}
+              </td>
+              <td className="p-4">
+                <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                  {news.title}
+                </div>
+                <div className="text-sm text-gray-500 line-clamp-1">
+                  {news.content}
+                </div>
+              </td>
+              <td className="p-4">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                  {categories.find((c) => c.id === news.category)?.name}
+                </span>
+              </td>
+              <td className="p-4 text-sm text-gray-500">
+                {new Date(news.date).toLocaleDateString("id-ID", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </td>
+              <td className="p-4">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => openUpdateModal(news)}
+                    className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                  >
+                    <Pencil size={20} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedNews([news.id]);
+                      handleDeleteNews();
+                    }}
+                    className="text-red-600 hover:text-red-900 transition-colors"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Mobile View - Card Layout */}
+      <div className="sm:hidden">{filteredNewsData.map(renderNewsCard)}</div>
+
+      {/* Empty State */}
+      {filteredNewsData.length === 0 && (
+        <div className="text-center py-10 px-4">
+          <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
+            <Search size={48} className="text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            Tidak ada berita ditemukan
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Coba ubah kata kunci pencarian atau tambahkan berita baru
+          </p>
+          <button
+            onClick={() => setSearchTerm("")}
+            className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          >
+            Reset Pencarian
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
   const renderModal = (isUpdate = false) => {
     const initialValues = isUpdate
-      ? newsData[selectedNewsIndex]
+      ? {
+          ...selectedNewsItem,
+          image: selectedNewsItem.image || null,
+        }
       : { title: "", date: "", content: "", image: null };
 
     return (
@@ -291,7 +528,7 @@ const PublicNews = () => {
                   />
                 </div>
 
-                {/* Input Fields with Improved Design */}
+                {/* Input Fields */}
                 {[
                   {
                     name: "title",
@@ -299,6 +536,13 @@ const PublicNews = () => {
                     type: "text",
                     placeholder: "Masukkan judul berita",
                     icon: <Pencil size={20} className="text-gray-400" />,
+                  },
+                  {
+                    name: "category", // Tambahkan field kategori
+                    label: "Kategori",
+                    type: "select",
+                    icon: <AlignLeft size={20} className="text-gray-400" />,
+                    options: categories, // Pastikan categories sudah didefinisikan di state
                   },
                   {
                     name: "date",
@@ -313,7 +557,7 @@ const PublicNews = () => {
                     placeholder: "Masukkan konten berita",
                     icon: <AlignLeft size={20} className="text-gray-400" />,
                   },
-                ].map(({ name, label, type, placeholder, icon }) => (
+                ].map(({ name, label, type, placeholder, icon, options }) => (
                   <div key={name} className="relative">
                     <label
                       htmlFor={name}
@@ -325,20 +569,41 @@ const PublicNews = () => {
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         {icon}
                       </div>
-                      <Field
-                        type={type}
-                        name={name}
-                        id={name}
-                        as={type === "textarea" ? "textarea" : "input"}
-                        rows={type === "textarea" ? 3 : undefined}
-                        placeholder={placeholder}
-                        className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none 
-                          ${
-                            touched[name] && errors[name]
-                              ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                          }`}
-                      />
+                      {type === "select" ? (
+                        <Field
+                          as="select"
+                          name={name}
+                          id={name}
+                          className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none 
+                            ${
+                              touched[name] && errors[name]
+                                ? "border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500"
+                                : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            }`}
+                        >
+                          <option value="">Pilih Kategori</option>
+                          {options.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </Field>
+                      ) : (
+                        <Field
+                          type={type}
+                          name={name}
+                          id={name}
+                          as={type === "textarea" ? "textarea" : "input"}
+                          rows={type === "textarea" ? 3 : undefined}
+                          placeholder={placeholder}
+                          className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none 
+                            ${
+                              touched[name] && errors[name]
+                                ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
+                                : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            }`}
+                        />
+                      )}
                     </div>
                     <ErrorMessage
                       name={name}
@@ -373,55 +638,38 @@ const PublicNews = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 ">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h1 className="hidden md:block text-xl font-bold text-gray-800 mb-4 sm:mb-0">
-          Berita Terkini
-        </h1>
+    <div className="md:max-w-6xl md:mx-auto  md:px-4">
+      <div className="flex flex-row justify-between items-center mb-6">
+        <h1 className="text-xl font-bold text-gray-800">Berita Terkini</h1>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
+          className="flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
         >
           <Plus size={20} className="mr-2" />
-          Tambah Berita Baru
+          Tambah
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsData.map((news, index) => (
-          <div
-            key={index}
-            onClick={() => openUpdateModal(news, index)}
-            className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 cursor-pointer"
+      {/* Bulk Action Area */}
+      {selectedNews.length > 0 && (
+        <div className="bg-indigo-50 p-4 rounded-lg flex justify-between items-center mb-4">
+          <p className="text-indigo-800">
+            {selectedNews.length} berita dipilih
+          </p>
+          <button
+            onClick={handleDeleteNews}
+            className="flex items-center text-red-600 hover:bg-red-100 px-3 py-2 rounded-md transition-colors"
           >
-            <div
-              className="h-48 bg-gray-300 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${news.image})`,
-              }}
-            ></div>
-            <div className="p-5">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
-                {news.title}
-              </h2>
-              <p className="text-gray-500 text-sm mb-3">
-                {new Date(news.date).toLocaleDateString("id-ID", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <p className="text-gray-600 mb-4 line-clamp-3">{news.content}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+            <Trash2 size={20} className="mr-2" />
+            Hapus Terpilih
+          </button>
+        </div>
+      )}
 
-      {/* Add News Modal */}
+      {renderNewsTable()}
+
+      {/* Modals */}
       {isAddModalOpen && renderModal()}
-
-      {/* Update News Modal */}
       {isUpdateModalOpen && renderModal(true)}
     </div>
   );
