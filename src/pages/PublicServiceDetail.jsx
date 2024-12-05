@@ -1,26 +1,21 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Bell,
   ChevronDown,
   LogOut,
-  Menu,
   MessageSquare,
   PieChart,
   Search,
-  Settings,
   Users,
   User,
   X,
-  Hospital,
-  TrafficCone,
-  TreePine,
-  School,
-  ShieldAlert,
-  AlertCircle,
-  Construction,
   Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import { useLocation, Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ className, onClose }) => {
   const location = useLocation();
@@ -322,91 +317,125 @@ const Header = () => {
   );
 };
 
-const MetricCard = ({ title, value }) => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className="text-xl md:text-2xl font-bold mt-1">{value}</p>
-  </div>
-);
-
-const Chart = () => (
-  <div className="h-[200px] md:h-[300px] mt-4">
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      Chart Placeholder
-    </div>
-  </div>
-);
-
-const RecentComplaints = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent Complaint</h2>
-    <div className="space-y-4">
-      {[
-        {
-          name: "Francisco Gibbs",
-          complaint: "Kebakaran hutan",
-          time: "Just now",
-        },
-        {
-          name: "Adam Kurniawan",
-          complaint: "Banjir",
-          time: "Friday 12:26PM",
-        },
-      ].map((item, index) => (
-        <div
-          key={index}
-          className="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg"
+const News = () => {
+  const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
+  const commenters = [
+    { name: "Leo Messi", image: "/placeholder.svg?height=48&width=48" },
+    { name: "Ariska", image: "/placeholder.svg?height=48&width=48" },
+    { name: "Restanti", image: "/placeholder.svg?height=48&width=48" },
+  ];
+  return (
+    <div className="min-h-screen lg:p-4 md:p-0">
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          // onClick={handleGoBack}
+          className="flex items-center text-gray-600 hover:text-gray-900"
         >
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate">{item.name}</p>
-            <p className="text-sm text-gray-500 truncate">
-              Created Complaint {item.complaint}
-            </p>
-            <p className="text-xs text-gray-400">{item.time}</p>
+          <ChevronLeft className="mr-2" />
+          <span>Kembali</span>
+        </button>
+      </div>
+      <div className=" mx-auto p-4 bg-white rounded-md">
+        {/* Gambar dan Judul */}
+        <div className="flex flex-col md:flex-row mb-6">
+          {" "}
+          {/* Ubah lg:flex-row menjadi md:flex-row */}
+          <div className="md:w-1/2 mb-4 md:mb-0 md:mr-4">
+            {" "}
+            {/* Ubah lg menjadi md */}
+            <div className="bg-gray-300 h-[200px] md:h-[300px] w-full rounded-lg"></div>
+          </div>
+          <div className="md:w-1/2 flex flex-col w-full">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight break-words lg:mb-4 md:mb-4">
+              Pemerintah Meningkatkan Ketangguhan Bencana Alam Di Berbagai
+              Daerah
+            </h1>
+            <div className="mt-2 lg:mb-4 md:mb-4">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs md:text-sm font-medium bg-indigo-100 text-indigo-800">
+                Lingkungan
+              </span>
+            </div>
+            <div className="text-xs md:text-sm text-gray-500 flex flex-wrap md:flex-nowrap space-x-4 mt-2">
+              <span>By Lucy Hiddleston</span>
+              <span>20-NOV-2024</span>
+            </div>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-);
+        {/* Deskripsi */}
+        <div className="text-gray-700 leading-relaxed text-sm md:text-base space-y-4 break-words">
+          <p>
+            Pemerintah Indonesia telah mengumumkan serangkaian langkah
+            penanggulangan bencana sebagai respons terhadap bencana alam yang
+            baru-baru ini melanda beberapa wilayah di Tanah Air. Langkah ini
+            bertujuan untuk memastikan keselamatan, pemulihan, dan dukungan bagi
+            masyarakat terdampak.
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">
+              Menteri Koordinator Bidang Pembangunan Manusia dan Kebudayaan
+            </span>
+            menyatakan bahwa prioritas utama pemerintah adalah mengevakuasi
+            warga dari daerah berisiko tinggi, memberikan kebutuhan dasar, dan
+            memastikan akses kesehatan tetap berjalan. "Kami bekerja sama dengan
+            pemerintah daerah, relawan, dan lembaga internasional untuk
+            memastikan penanggulangan berjalan cepat dan tepat sasaran," ujar
+            beliau.
+          </p>
+        </div>
+      </div>
 
-const RecentUsers = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent User</h2>
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[500px]">
-        <thead>
-          <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <th className="pb-2 px-2">No Complaint</th>
-            <th className="pb-2 px-2">Date Created</th>
-            <th className="pb-2 px-2">Client</th>
-            <th className="pb-2 px-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[1, 2, 3].map((_, index) => (
-            <tr key={index} className="border-t hover:bg-gray-50">
-              <td className="py-2 px-2">ZR-22222</td>
-              <td className="py-2 px-2">3 Jul, 2020</td>
-              <td className="py-2 px-2">Adam kurniawan</td>
-              <td className="py-2 px-2">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  PAID
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
+      <div className="col-span-full mt-6 p-4 bg-white rounded-md">
+        {/* Header Komentar */}
+        <div
+          className="flex justify-between items-center cursor-pointer"
+          onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
+        >
+          <h2 className="text-lg md:text-xl lg:text-2xl font-bold">Komentar</h2>
+          <ChevronRight
+            className={`transition-transform duration-300 ${
+              isCommentsExpanded ? "rotate-90" : ""
+            }`}
+          />
+        </div>
 
-export default function Dashboard() {
+        {/* Daftar Komentar */}
+        {isCommentsExpanded && (
+          <div className="space-y-4 mt-4">
+            {commenters.map((commenter, index) => (
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-gray-50 rounded-lg"
+              >
+                {/* Avatar */}
+                <div className="bg-gray-300 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0"></div>
+
+                {/* Konten Komentar */}
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                    {commenter.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm md:text-base leading-relaxed break-words">
+                    Ini akibat masyarakat sering buang sampah sembarangan.
+                  </p>
+                </div>
+
+                {/* Tombol Hapus */}
+                <button className="text-red-500 hover:text-red-600 sm:mt-0 sm:ml-4 mt-2 lg:mt-4">
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default function PublicServiceDetail() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-100 pb-16 md:pb-16 lg:pb-0">
@@ -417,27 +446,11 @@ export default function Dashboard() {
         <Header />
 
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard title="Complaint Masuk" value={20} />
-              <MetricCard title="Feedback Selesai" value={20} />
-              <MetricCard title="Category Complaint" value={20} />
-              <MetricCard title="Import CSV" value={20} />
-            </div>
-
-            <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-              <h2 className="text-lg font-semibold mb-4">Complaint Grafik</h2>
-              <Chart />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecentComplaints />
-              <RecentUsers />
-            </div>
+          <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
+            <News />
           </div>
         </main>
 
-        {/* Bottom Navigation for Mobile and Tablet */}
         <BottomNavigation />
       </div>
     </div>

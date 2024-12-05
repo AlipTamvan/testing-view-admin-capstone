@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Bell,
   ChevronDown,
@@ -11,14 +11,23 @@ import {
   Users,
   User,
   X,
+  Edit,
 } from "lucide-react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ className, onClose }) => {
   const location = useLocation();
+
   const isActivePath = (path) => {
     if (path === "/") {
       return location.pathname === path;
+    }
+
+    if (path === "/users") {
+      return location.pathname.startsWith("/user");
+    }
+    if (path === "/public-services" && location.pathname.startsWith("/news")) {
+      return true;
     }
     return location.pathname.startsWith(path);
   };
@@ -40,9 +49,7 @@ const Sidebar = ({ className, onClose }) => {
           { icon: PieChart, label: "Dashboard", path: "/" },
           { icon: MessageSquare, label: "Complaint", path: "/complaint" },
           { icon: Users, label: "Public Services", path: "/public-services" },
-          { icon: Settings, label: "Category", path: "/category" },
-          { icon: User, label: "User", path: "/user" },
-          { icon: Settings, label: "Setting", path: "/setting" },
+          { icon: Users, label: "Users", path: "/users" },
         ].map(({ icon: Icon, label, path }) => (
           <Link
             key={label}
@@ -78,6 +85,12 @@ const BottomNavigation = () => {
     if (path === "/") {
       return location.pathname === path;
     }
+    if (path === "/users") {
+      return location.pathname.startsWith("/user");
+    }
+    if (path === "/public-services" && location.pathname.startsWith("/news")) {
+      return true;
+    }
     return location.pathname.startsWith(path);
   };
 
@@ -85,7 +98,6 @@ const BottomNavigation = () => {
     { icon: PieChart, label: "Dashboard", path: "/" },
     { icon: MessageSquare, label: "Complaint", path: "/complaint" },
     { icon: Users, label: "Services", path: "/public-services" },
-    { icon: Settings, label: "Category", path: "/category" },
     { icon: User, label: "Users", path: "/users" },
   ];
 
@@ -108,6 +120,198 @@ const BottomNavigation = () => {
         ))}
       </div>
     </div>
+  );
+};
+
+const Header = () => {
+  const [showNotificationDropdown, setShowNotificationDropdown] =
+    useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Mock data dengan nama pengirim
+  const recentComplaints = [
+    {
+      id: 1,
+      sender: "John Doe",
+      title: "Jalanan Bolong",
+      status: "Belum Ditangani",
+    },
+    {
+      id: 2,
+      sender: "Jane Smith",
+      title: "Macet Di Tol Cikupa",
+      status: "Belum Ditangani",
+    },
+    {
+      id: 3,
+      sender: "Alex Johnson",
+      title: "Keluhan Produk",
+      status: "Belum Ditangani",
+    },
+  ];
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotificationDropdown(false);
+      }
+
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleProfileClick = () => {
+    navigate("/edit-profile");
+  };
+
+  return (
+    <header className="bg-white shadow-sm sticky top-0 z-40 ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Search Section */}
+          <div className="flex items-center flex-1">
+            <div className={`flex items-center w-full max-w-md relative`}>
+              <Search className="absolute left-3 h-5 w-5 text-gray-400 pointer-events-none" />
+              <input
+                type="search"
+                placeholder="Cari Disini"
+                className="w-full pl-10 pr-4 py-2 mr-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          {/* Notification and Profile Section */}
+          <div className="flex items-center space-x-4 ">
+            {/* Notification Dropdown */}
+            <div className="relative mt-2" ref={notificationRef}>
+              <button
+                className="relative"
+                onClick={() =>
+                  setShowNotificationDropdown(!showNotificationDropdown)
+                }
+              >
+                <Bell className="h-6 w-6 text-gray-400" />
+                {recentComplaints.length > 0 && (
+                  <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 transform translate-x-1/2 -translate-y-1/2"></span>
+                )}
+              </button>
+
+              {showNotificationDropdown && (
+                <div
+                  className="fixed md:absolute top-16 md:top-auto right-4 md:right-0 md:mt-4 
+          w-[calc(100%-2rem)] md:w-96 
+          bg-white border-none rounded-lg shadow-2xl 
+          z-50
+          md:before:content-[''] md:before:absolute md:before:border-l-8 md:before:border-r-8 md:before:border-b-8 
+          md:before:border-l-transparent md:before:border-r-transparent md:before:border-b-white 
+          md:before:-top-2 md:before:right-2 md:before:rotate-180 mt-1"
+                >
+                  <div className="p-4 bg-white rounded-lg shadow-lg">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-sm font-semibold">
+                        Komplain Terbaru
+                      </h3>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {recentComplaints.map((complaint) => (
+                        <div
+                          key={complaint.id}
+                          className="py-3 border-b last:border-b-0 flex items-center hover:bg-gray-50 cursor-pointer rounded-lg transition-colors duration-200"
+                        >
+                          <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center">
+                            {complaint.senderAvatar ? (
+                              <img
+                                src={complaint.senderAvatar}
+                                alt={complaint.sender}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-gray-600 text-lg">
+                                {complaint.sender.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="ml-3 flex-grow">
+                            <p className="text-sm font-medium text-gray-800">
+                              {complaint.sender} Baru Saja Complaint
+                            </p>
+                            <p className="text-xs text-gray-500 truncate max-w-48">
+                              {complaint.title}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {recentComplaints.length > 0 && (
+                      <div className="mt-3 text-center">
+                        <button className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                          Lihat Semua Komplain
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Profile Section */}
+            <div className="relative" ref={profileRef}>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              >
+                <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                <div className="hidden sm:block">
+                  <p className="text-sm font-medium">Halo ! Adam</p>
+                  <p className="text-xs text-gray-500">Administrator</p>
+                </div>
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              </div>
+
+              {showProfileDropdown && (
+                <div
+                  className="fixed md:absolute top-16 md:top-auto right-4 md:right-0 md:mt-4 
+                w-[calc(50%-2rem)] md:w-48 
+                bg-white border-none rounded-lg shadow-2xl 
+                z-50
+                md:before:content-[''] md:before:absolute md:before:border-l-8 md:before:border-r-8 md:before:border-b-8 
+                md:before:border-l-transparent md:before:border-r-transparent md:before:border-b-white 
+                md:before:-top-2 md:before:right-2 md:before:rotate-180 mt-1"
+                >
+                  <div className="py-1 bg-white rounded-lg shadow-lg">
+                    <button
+                      onClick={handleProfileClick}
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2"
+                    >
+                      <Edit className="h-5 w-5 text-gray-500" />
+                      <span>Edit Profil</span>
+                    </button>
+                    <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center space-x-2">
+                      <LogOut className="h-5 w-5 text-red-600" />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 };
 
@@ -314,38 +518,7 @@ export default function Complaint() {
       <Sidebar className="hidden md:block w-64 fixed h-full" />
 
       <div className="flex-1 flex flex-col md:ml-64">
-        <header className="bg-white shadow-sm sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center flex-1">
-                <div className={`flex items-center w-full max-w-md relative`}>
-                  <Search className="absolute left-3 h-5 w-5 text-gray-400 pointer-events-none" />
-                  <input
-                    type="search"
-                    placeholder="Cari Disini"
-                    className="w-full pl-10 pr-4 py-2 mr-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <button className="relative">
-                  <Bell className="h-6 w-6 text-gray-400" />
-                  <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 transform translate-x-1/2 -translate-y-1/2"></span>
-                </button>
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                  <div className="hidden sm:block">
-                    <p className="text-sm font-medium">Halo ! Adam</p>
-                    <p className="text-xs text-gray-500">Administrator</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-gray"></ChevronDown>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
+        <Header />
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
             <ComplaintList />

@@ -11,16 +11,13 @@ import {
   Users,
   User,
   X,
-  Hospital,
-  TrafficCone,
-  TreePine,
-  School,
-  ShieldAlert,
-  AlertCircle,
-  Construction,
   Edit,
+  Mail,
+  Camera,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const Sidebar = ({ className, onClose }) => {
   const location = useLocation();
@@ -322,92 +319,194 @@ const Header = () => {
   );
 };
 
-const MetricCard = ({ title, value }) => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className="text-xl md:text-2xl font-bold mt-1">{value}</p>
-  </div>
-);
+const ProfileForm = () => {
+  const [profileImage, setProfileImage] = useState(null);
+  const fileInputRef = useRef(null);
 
-const Chart = () => (
-  <div className="h-[200px] md:h-[300px] mt-4">
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      Chart Placeholder
-    </div>
-  </div>
-);
+  // Validation schema using Yup with more detailed validation
+  const validationSchema = Yup.object().shape({
+    name: Yup.string()
+      .required("Nama wajib diisi")
+      .min(2, "Nama minimal 2 karakter")
+      .max(50, "Nama maksimal 50 karakter"),
+    email: Yup.string()
+      .email("Format email tidak valid")
+      .required("Email wajib diisi"),
+  });
 
-const RecentComplaints = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent Complaint</h2>
-    <div className="space-y-4">
-      {[
-        {
-          name: "Francisco Gibbs",
-          complaint: "Kebakaran hutan",
-          time: "Just now",
-        },
-        {
-          name: "Adam Kurniawan",
-          complaint: "Banjir",
-          time: "Friday 12:26PM",
-        },
-      ].map((item, index) => (
-        <div
-          key={index}
-          className="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg"
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleSubmit = (values, { setSubmitting }) => {
+    // Simulate API call
+    setTimeout(() => {
+      console.log("Profile Updated:", {
+        ...values,
+        profileImage,
+      });
+      alert("Profil Berhasil Diperbarui!");
+      setSubmitting(false);
+    }, 400);
+  };
+
+  return (
+    <div className="flex overflow-hidden justify-center items-center lg:mt-4 md:mt-4">
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6">
+        <Formik
+          initialValues={{
+            name: "Adam",
+            email: "adam@example.com",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
         >
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate">{item.name}</p>
-            <p className="text-sm text-gray-500 truncate">
-              Created Complaint {item.complaint}
-            </p>
-            <p className="text-xs text-gray-400">{item.time}</p>
-          </div>
-        </div>
-      ))}
+          {({ errors, touched, isSubmitting, setFieldValue }) => (
+            <Form className="space-y-6">
+              <div className="space-y-4 text-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+                  Edit Profil
+                </h1>
+                <p className="text-sm md:text-base text-gray-600">
+                  Perbarui informasi profil Anda
+                </p>
+              </div>
+
+              {/* Profile Image Upload */}
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center relative border-4 border-[#4338CA]/20">
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <User className="w-16 h-16 text-gray-500" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleImageUpload}
+                      className="absolute bottom-0 right-0 bg-gradient-to-r from-[#4338CA] to-[#6366F1] text-white rounded-full p-2 
+                      hover:from-[#3730A3] hover:to-[#4f46e5] 
+                      transition-all duration-300 transform active:scale-95
+                      shadow-md hover:shadow-lg"
+                    >
+                      <Camera size={16} />
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={(e) => {
+                        handleImageChange(e);
+                        setFieldValue("profileImage", e.target.files[0]);
+                      }}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Nama Input */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Nama
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Field
+                    type="text"
+                    name="name"
+                    className={`
+                      pl-10 w-full rounded-lg border p-3 focus:outline-none focus:ring-2 transition-all duration-300
+                      ${
+                        errors.name && touched.name
+                          ? "border-red-500 focus:ring-red-500 bg-red-50"
+                          : "border-gray-300 focus:ring-[#4338CA] hover:border-[#4338CA]/50"
+                      }
+                    `}
+                    placeholder="Masukkan nama Anda"
+                  />
+                </div>
+                <ErrorMessage
+                  name="name"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+
+              {/* Email Input */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Field
+                    type="email"
+                    name="email"
+                    className={`
+                      pl-10 w-full rounded-lg border p-3 focus:outline-none focus:ring-2 transition-all duration-300
+                      ${
+                        errors.email && touched.email
+                          ? "border-red-500 focus:ring-red-500 bg-red-50"
+                          : "border-gray-300 focus:ring-[#4338CA] hover:border-[#4338CA]/50"
+                      }
+                    `}
+                    placeholder="Masukkan email Anda"
+                  />
+                </div>
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+
+              {/* Update Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-[#4338CA] to-[#6366F1] text-white rounded-lg p-3 
+                hover:from-[#3730A3] hover:to-[#4f46e5] 
+                transition-all duration-300 transform active:scale-95
+                disabled:opacity-50 disabled:cursor-not-allowed
+                shadow-md hover:shadow-lg"
+              >
+                {isSubmitting ? "Memperbarui..." : "Perbarui Profil"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-const RecentUsers = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent User</h2>
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[500px]">
-        <thead>
-          <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <th className="pb-2 px-2">No Complaint</th>
-            <th className="pb-2 px-2">Date Created</th>
-            <th className="pb-2 px-2">Client</th>
-            <th className="pb-2 px-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[1, 2, 3].map((_, index) => (
-            <tr key={index} className="border-t hover:bg-gray-50">
-              <td className="py-2 px-2">ZR-22222</td>
-              <td className="py-2 px-2">3 Jul, 2020</td>
-              <td className="py-2 px-2">Adam kurniawan</td>
-              <td className="py-2 px-2">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  PAID
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
-
-export default function Dashboard() {
-  const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
+export default function Profile() {
   return (
     <div className="flex h-screen bg-gray-100 pb-16 md:pb-16 lg:pb-0">
       {/* Persistent Sidebar for Large Screens */}
@@ -418,22 +517,7 @@ export default function Dashboard() {
 
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard title="Complaint Masuk" value={20} />
-              <MetricCard title="Feedback Selesai" value={20} />
-              <MetricCard title="Category Complaint" value={20} />
-              <MetricCard title="Import CSV" value={20} />
-            </div>
-
-            <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-              <h2 className="text-lg font-semibold mb-4">Complaint Grafik</h2>
-              <Chart />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecentComplaints />
-              <RecentUsers />
-            </div>
+            <ProfileForm />
           </div>
         </main>
 

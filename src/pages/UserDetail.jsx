@@ -1,16 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Bell,
   ChevronDown,
   LogOut,
-  Menu,
+  Edit,
   MessageSquare,
   PieChart,
   Search,
-  Settings,
   Users,
   User,
   X,
+  Mail,
+  Phone,
   Hospital,
   TrafficCone,
   TreePine,
@@ -18,9 +19,11 @@ import {
   ShieldAlert,
   AlertCircle,
   Construction,
-  Edit,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import { useLocation, Link, useNavigate, useParams } from "react-router-dom";
 
 const Sidebar = ({ className, onClose }) => {
   const location = useLocation();
@@ -220,12 +223,12 @@ const Header = () => {
               {showNotificationDropdown && (
                 <div
                   className="fixed md:absolute top-16 md:top-auto right-4 md:right-0 md:mt-4 
-          w-[calc(100%-2rem)] md:w-96 
-          bg-white border-none rounded-lg shadow-2xl 
-          z-50
-          md:before:content-[''] md:before:absolute md:before:border-l-8 md:before:border-r-8 md:before:border-b-8 
-          md:before:border-l-transparent md:before:border-r-transparent md:before:border-b-white 
-          md:before:-top-2 md:before:right-2 md:before:rotate-180 mt-1"
+            w-[calc(100%-2rem)] md:w-96 
+            bg-white border-none rounded-lg shadow-2xl 
+            z-50
+            md:before:content-[''] md:before:absolute md:before:border-l-8 md:before:border-r-8 md:before:border-b-8 
+            md:before:border-l-transparent md:before:border-r-transparent md:before:border-b-white 
+            md:before:-top-2 md:before:right-2 md:before:rotate-180 mt-1"
                 >
                   <div className="p-4 bg-white rounded-lg shadow-lg">
                     <div className="flex justify-between items-center mb-3">
@@ -292,12 +295,12 @@ const Header = () => {
               {showProfileDropdown && (
                 <div
                   className="fixed md:absolute top-16 md:top-auto right-4 md:right-0 md:mt-4 
-                w-[calc(50%-2rem)] md:w-48 
-                bg-white border-none rounded-lg shadow-2xl 
-                z-50
-                md:before:content-[''] md:before:absolute md:before:border-l-8 md:before:border-r-8 md:before:border-b-8 
-                md:before:border-l-transparent md:before:border-r-transparent md:before:border-b-white 
-                md:before:-top-2 md:before:right-2 md:before:rotate-180 mt-1"
+                  w-[calc(50%-2rem)] md:w-48 
+                  bg-white border-none rounded-lg shadow-2xl 
+                  z-50
+                  md:before:content-[''] md:before:absolute md:before:border-l-8 md:before:border-r-8 md:before:border-b-8 
+                  md:before:border-l-transparent md:before:border-r-transparent md:before:border-b-white 
+                  md:before:-top-2 md:before:right-2 md:before:rotate-180 mt-1"
                 >
                   <div className="py-1 bg-white rounded-lg shadow-lg">
                     <button
@@ -322,91 +325,288 @@ const Header = () => {
   );
 };
 
-const MetricCard = ({ title, value }) => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className="text-xl md:text-2xl font-bold mt-1">{value}</p>
-  </div>
-);
+const Detail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-const Chart = () => (
-  <div className="h-[200px] md:h-[300px] mt-4">
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      Chart Placeholder
-    </div>
-  </div>
-);
+  // State for complaint history dropdown
+  const [openHistoryDropdown, setOpenHistoryDropdown] = useState(false);
 
-const RecentComplaints = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent Complaint</h2>
-    <div className="space-y-4">
-      {[
-        {
-          name: "Francisco Gibbs",
-          complaint: "Kebakaran hutan",
-          time: "Just now",
-        },
-        {
-          name: "Adam Kurniawan",
-          complaint: "Banjir",
-          time: "Friday 12:26PM",
-        },
-      ].map((item, index) => (
-        <div
-          key={index}
-          className="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg"
+  // Mock user data with public service complaints
+  const [user] = useState({
+    id: 1,
+    name: "John Doe",
+    email: "john.doe@example.com",
+    phone: "+62 812-3456-7890",
+    avatar: "/api/placeholder/200/200",
+    complaints: [
+      {
+        id: 1,
+        date: "2024-01-15",
+        status: "open",
+        title: "Kebakaran di Perumahan",
+        description:
+          "Terjadi kebakaran di Jalan Merdeka No. 45, membutuhkan segera penanganan",
+        location: "Jalan Merdeka No. 45",
+        severity: "high",
+        category: "Keamanan",
+      },
+      {
+        id: 2,
+        date: "2024-02-20",
+        status: "resolved",
+        title: "Kemacetan Panjang",
+        description:
+          "Kemacetan parah di persimpangan utama akibat kerusakan traffic light",
+        location: "Persimpangan Utama Kota",
+        severity: "medium",
+        category: "Transportasi",
+      },
+      {
+        id: 3,
+        date: "2024-03-10",
+        status: "in-progress",
+        title: "Pohon Tumbang",
+        description:
+          "Pohon besar tumbang menghalangi jalan dan membahayakan lalu lintas",
+        location: "Jalan Sudirman Dekat Gedung Pemda",
+        severity: "low",
+        category: "Lingkungan",
+      },
+      {
+        id: 4,
+        date: "2024-04-05",
+        status: "open",
+        title: "Fasilitas Puskesmas Rusak",
+        description:
+          "Beberapa fasilitas di puskesmas memerlukan perbaikan segera",
+        location: "Puskesmas Kota",
+        severity: "medium",
+        category: "Kesehatan",
+      },
+      {
+        id: 5,
+        date: "2024-04-15",
+        status: "in-progress",
+        title: "Kerusakan Jalan",
+        description:
+          "Jalan utama mengalami kerusakan parah dan membutuhkan perbaikan",
+        location: "Jalan Protokol",
+        severity: "high",
+        category: "Infrastruktur",
+      },
+      {
+        id: 6,
+        date: "2024-04-25",
+        status: "resolved",
+        title: "Perpustakaan Sekolah",
+        description:
+          "Membutuhkan buku-buku baru dan perbaikan fasilitas perpustakaan",
+        location: "SMP Negeri 1",
+        severity: "low",
+        category: "Pendidikan",
+      },
+    ],
+  });
+
+  const renderComplaintIcon = (category) => {
+    switch (category) {
+      case "Kesehatan":
+        return <Hospital size={20} className="text-blue-500" />;
+      case "Infrastruktur":
+        return <Construction size={20} className="text-gray-500" />;
+      case "Transportasi":
+        return <TrafficCone size={20} className="text-yellow-500" />;
+      case "Lingkungan":
+        return <TreePine size={20} className="text-green-500" />;
+      case "Pendidikan":
+        return <School size={20} className="text-purple-500" />;
+      case "Keamanan":
+        return <ShieldAlert size={20} className="text-red-500" />;
+      default:
+        return <AlertCircle size={20} className="text-gray-500" />;
+    }
+  };
+
+  // Calculate total complaints and their status distribution
+  const totalComplaints = user.complaints.length;
+  const complaintStatusCount = user.complaints.reduce((acc, complaint) => {
+    acc[complaint.status] = (acc[complaint.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Grouping complaints by year
+  const complaintsByYear = useMemo(() => {
+    return user.complaints.reduce((acc, complaint) => {
+      const year = complaint.date.split("-")[0];
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(complaint);
+      return acc;
+    }, {});
+  }, [user.complaints]);
+
+  return (
+    <div className="mx-auto  md:px-4">
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          // onClick={handleGoBack}
+          className="flex items-center text-gray-600 hover:text-gray-900"
         >
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate">{item.name}</p>
-            <p className="text-sm text-gray-500 truncate">
-              Created Complaint {item.complaint}
-            </p>
-            <p className="text-xs text-gray-400">{item.time}</p>
+          <ChevronLeft className="mr-2" />
+          <span>Kembali</span>
+        </button>
+      </div>
+
+      {/* User Profile Header */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-200 flex items-center justify-center mb-4 sm:mb-0 sm:mr-6">
+            <img
+              //   src={user.avatar}
+              className="w-full h-full rounded-full object-cover"
+            />
+          </div>
+          <div className="text-center sm:text-left">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-800">
+              {user.name}
+            </h1>
+            <div className="text-gray-500 space-y-1 mt-2 text-sm sm:text-base">
+              <p className="flex items-center justify-center sm:justify-start">
+                <Mail size={16} className="mr-2 text-gray-400" /> {user.email}
+              </p>
+              <p className="flex items-center justify-center sm:justify-start">
+                <Phone size={16} className="mr-2 text-gray-400" /> {user.phone}
+              </p>
+            </div>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-);
+      </div>
 
-const RecentUsers = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent User</h2>
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[500px]">
-        <thead>
-          <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <th className="pb-2 px-2">No Complaint</th>
-            <th className="pb-2 px-2">Date Created</th>
-            <th className="pb-2 px-2">Client</th>
-            <th className="pb-2 px-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[1, 2, 3].map((_, index) => (
-            <tr key={index} className="border-t hover:bg-gray-50">
-              <td className="py-2 px-2">ZR-22222</td>
-              <td className="py-2 px-2">3 Jul, 2020</td>
-              <td className="py-2 px-2">Adam kurniawan</td>
-              <td className="py-2 px-2">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  PAID
-                </span>
-              </td>
-            </tr>
+      {/* Complaints Summary */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6 mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+          Total Komplain
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-gray-100 p-3 sm:p-4 rounded-lg text-center">
+            <p className="text-xl sm:text-2xl font-bold text-gray-800">
+              {totalComplaints}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500">Total Komplain</p>
+          </div>
+          {Object.entries(complaintStatusCount).map(([status, count]) => (
+            <div
+              key={status}
+              className="bg-gray-100 p-3 sm:p-4 rounded-lg text-center"
+            >
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">
+                {count}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-500 capitalize">
+                {status === "in-progress"
+                  ? "Dalam Proses"
+                  : status === "resolved"
+                  ? "Selesai"
+                  : status === "open"
+                  ? "Buka"
+                  : status}
+              </p>
+            </div>
           ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
+        </div>
+      </div>
 
-export default function Dashboard() {
+      {/* Complaints Section with Dropdown */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <div
+          className="flex justify-between items-center cursor-pointer"
+          onClick={() => setOpenHistoryDropdown(!openHistoryDropdown)}
+        >
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+            Riwayat Komplain
+          </h2>
+          <ChevronRight
+            className={`transition-transform duration-300 ${
+              openHistoryDropdown ? "rotate-90" : ""
+            }`}
+          />
+        </div>
+
+        {openHistoryDropdown && (
+          <div className="mt-4">
+            {Object.entries(complaintsByYear).map(([year, yearComplaints]) => (
+              <div key={year} className="mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
+                  {year}
+                </h3>
+                <div className="space-y-4">
+                  {yearComplaints.map((complaint) => (
+                    <div
+                      key={complaint.id}
+                      className="flex flex-col sm:flex-row items-start border-b pb-4 last:border-b-0"
+                    >
+                      <div className="mb-2 sm:mb-0 sm:mr-4">
+                        {renderComplaintIcon(complaint.category)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-800">
+                            {complaint.title}
+                          </h3>
+                          <span
+                            className={`text-xs px-2 py-1 rounded ${
+                              complaint.status === "open"
+                                ? "bg-red-100 text-red-800"
+                                : complaint.status === "in-progress"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-green-100 text-green-800"
+                            }`}
+                          >
+                            {complaint.status === "in-progress"
+                              ? "Dalam Proses"
+                              : complaint.status === "resolved"
+                              ? "Selesai"
+                              : complaint.status === "open"
+                              ? "Buka"
+                              : complaint.status}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                          {complaint.description}
+                        </p>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                          <p className="text-xs text-gray-500">
+                            Lokasi: {complaint.location}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {complaint.date}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {Object.keys(complaintsByYear).length === 0 && (
+              <p className="text-gray-500 text-center text-sm sm:text-base">
+                Tidak ada riwayat komplain
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default function UserDetail() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-100 pb-16 md:pb-16 lg:pb-0">
@@ -417,27 +617,11 @@ export default function Dashboard() {
         <Header />
 
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard title="Complaint Masuk" value={20} />
-              <MetricCard title="Feedback Selesai" value={20} />
-              <MetricCard title="Category Complaint" value={20} />
-              <MetricCard title="Import CSV" value={20} />
-            </div>
-
-            <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-              <h2 className="text-lg font-semibold mb-4">Complaint Grafik</h2>
-              <Chart />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecentComplaints />
-              <RecentUsers />
-            </div>
+          <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
+            <Detail />
           </div>
         </main>
 
-        {/* Bottom Navigation for Mobile and Tablet */}
         <BottomNavigation />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Bell,
   ChevronDown,
@@ -10,15 +10,15 @@ import {
   User,
   X,
   Plus,
-  Calendar,
-  FileImage,
   Pencil,
-  AlignLeft,
   Trash2,
+  Mail,
   Edit,
+  Phone,
 } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+
 import { useLocation, Link, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ className, onClose }) => {
@@ -321,216 +321,146 @@ const Header = () => {
   );
 };
 
-const PublicNews = () => {
+const TableUser = () => {
   const navigate = useNavigate();
-  const [categories] = useState([
-    { id: 1, name: "Pendidikan" },
-    { id: 2, name: "Infrastruktur" },
-    { id: 3, name: "Lingkungan" },
-    { id: 4, name: "Kesehatan" },
-    { id: 5, name: "Sosial" },
-  ]);
-  const [newsData, setNewsData] = useState([
+  const [users, setUsers] = useState([
     {
       id: 1,
-      image: null,
-      title: "Edukasi Lingkungan Sejak Dini",
-      date: "2024-08-27",
-      category: 3,
-      content:
-        "Universitas Indonesia melaksanakan program edukasi kepada siswa sekolah dasar untuk meningkatkan kesadaran mencintai lingkungan.",
+      name: "John Doe",
+      email: "john.doe@example.com",
+      phone: "+62 812-3456-7890",
+      avatar: "/api/placeholder/200/200",
     },
     {
       id: 2,
-      image: null,
-      title: "Trafo PLN untuk Warga Bogor",
-      date: "2024-01-30",
-      category: 5,
-      content:
-        "Berkat aspirasi warga saat reses, masyarakat Cikaret, Bogor, kini memiliki trafo PLN yang memberikan peningkatan akses listrik lebih merata.",
+      name: "Jane Smith",
+      email: "jane.smith@example.com",
+      phone: "+62 811-2345-6789",
+      avatar: "/api/placeholder/200/200",
     },
     {
       id: 3,
-      image: null,
-      title: "Peningkatan Ketangguhan Bencana",
-      date: "2024-02-09",
-      category: 1,
-      content:
-        "Pemerintah menggalakkan program pelatihan kesiapsiagaan penting megathrust, fokus pada kesiapan dan kesejahteraan.",
+      name: "Alice Johnson",
+      email: "alice.johnson@example.com",
+      phone: "+62 813-4567-8901",
+      avatar: "/api/placeholder/200/200",
     },
   ]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedNewsItem, setSelectedNewsItem] = useState(null);
-  const [selectedNews, setSelectedNews] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const filteredNewsData = useMemo(() => {
-    return newsData.filter((news) =>
-      news.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUserData = useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.phone.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [newsData, searchTerm]);
+  }, [users, searchTerm]);
 
-  const NewsSchema = Yup.object().shape({
-    title: Yup.string()
-      .min(5, "Judul terlalu pendek!")
-      .max(100, "Judul terlalu panjang!")
-      .required("Judul wajib diisi"),
-    date: Yup.date()
-      .required("Tanggal wajib diisi")
-      .max(new Date(), "Tanggal tidak boleh di masa depan"),
-    content: Yup.string()
-      .min(20, "Konten terlalu pendek!")
-      .max(500, "Konten terlalu panjang!")
-      .required("Konten wajib diisi"),
-    category: Yup.number().required("Kategori wajib dipilih"),
-    image: Yup.mixed()
-      .test("fileSize", "Ukuran file terlalu besar", (value) => {
-        return !value || value.size <= 5 * 1024 * 1024;
-      })
-      .test("fileType", "Format file tidak valid", (value) => {
-        return (
-          !value ||
-          ["image/jpeg", "image/png", "image/gif"].includes(value.type)
-        );
-      }),
+  const UserSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(2, "Nama terlalu pendek!")
+      .max(50, "Nama terlalu panjang!")
+      .required("Nama wajib diisi"),
+    email: Yup.string()
+      .email("Email tidak valid")
+      .required("Email wajib diisi"),
+    phone: Yup.string()
+      .matches(/^(\+62|62|0)8[1-9][0-9]{6,11}$/, "Nomor telepon tidak valid")
+      .required("Nomor telepon wajib diisi"),
   });
 
-  const handleImageChange = (event, setFieldValue) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-      setFieldValue("image", file);
-    }
-  };
-
-  const handleCloseModal = (resetForm, isUpdate = false) => {
-    resetForm();
-    setSelectedImage(null);
-    setSelectedNewsItem(null);
-    if (isUpdate) {
-      setIsUpdateModalOpen(false);
-    } else {
-      setIsAddModalOpen(false);
-    }
-  };
-
-  const handleAddNews = (values, { resetForm }) => {
-    const newNewsItem = {
-      id: newsData.length + 1,
-      image: selectedImage || null,
-      title: values.title,
-      date: values.date,
-      content: values.content,
+  const handleAddUser = (values, { resetForm }) => {
+    const newUser = {
+      id: users.length + 1,
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
     };
 
-    setNewsData((prev) => [newNewsItem, ...prev]);
-    setSelectedImage(null);
+    setUsers((prev) => [newUser, ...prev]);
     setIsAddModalOpen(false);
     resetForm();
   };
 
-  const handleUpdateNews = (values, { resetForm }) => {
-    const updatedNewsItem = {
-      ...selectedNewsItem,
-      image: selectedImage || selectedNewsItem.image,
-      title: values.title,
-      date: values.date,
-      content: values.content,
+  const handleUpdateUser = (values, { resetForm }) => {
+    const updatedUser = {
+      ...selectedUser,
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
     };
 
-    setNewsData((prev) =>
-      prev.map((item) =>
-        item.id === updatedNewsItem.id ? updatedNewsItem : item
-      )
+    setUsers((prev) =>
+      prev.map((item) => (item.id === updatedUser.id ? updatedUser : item))
     );
-    setSelectedImage(null);
     setIsUpdateModalOpen(false);
     resetForm();
   };
 
-  const handleDeleteNews = () => {
-    setNewsData((prev) =>
-      prev.filter((item) => !selectedNews.includes(item.id))
-    );
-    setSelectedNews([]);
+  const handleDeleteUsers = () => {
+    setUsers((prev) => prev.filter((item) => !selectedUsers.includes(item.id)));
+    setSelectedUsers([]);
   };
 
-  const openUpdateModal = (news) => {
-    setSelectedNewsItem(news);
-    setSelectedImage(news.image);
+  const openUpdateModal = (user) => {
+    setSelectedUser(user);
     setIsUpdateModalOpen(true);
   };
 
-  const handleSelectNews = (id) => {
-    setSelectedNews((prev) =>
+  const handleSelectUser = (id) => {
+    setSelectedUsers((prev) =>
       prev.includes(id)
         ? prev.filter((selectedId) => selectedId !== id)
         : [...prev, id]
     );
   };
 
-  const handleSelectAllNews = () => {
-    if (selectedNews.length === filteredNewsData.length) {
-      setSelectedNews([]);
+  const handleSelectAllUsers = () => {
+    if (selectedUsers.length === filteredUserData.length) {
+      setSelectedUsers([]);
     } else {
-      setSelectedNews(filteredNewsData.map((news) => news.id));
+      setSelectedUsers(filteredUserData.map((user) => user.id));
     }
   };
 
-  const handleNewsItemClick = (newsId) => {
-    navigate(`/news/${newsId}`);
-  };
-
-  const renderNewsCard = (news) => (
+  const renderUserCard = (user) => (
     <div className="rounded-lg md:p-4 mb-4 bg-white shadow-md">
-      {/* Image Section - Clickable */}
-      <div onClick={() => handleNewsItemClick(news.id)}>
-        {news.image ? (
-          <img
-            src={news.image}
-            alt={news.title}
-            className="w-full h-40 object-cover rounded-md mb-4"
-          />
-        ) : (
-          <div className="w-full h-40 bg-gray-200 rounded-md mb-4"></div>
-        )}
-      </div>
-
-      {/* Content Section */}
       <div className="flex px-4 space-x-4">
-        <div className="flex flex-col space-y-2 flex-1 pb-4 relative">
-          {/* Title and Dropdown */}
+        <div
+          className="flex flex-col space-y-2 flex-1 pb-4 relative cursor-pointer"
+          onClick={() => navigate(`/user/${user.id}`)}
+        >
           <div className="flex items-center justify-between">
-            <h3
-              className="text-base font-semibold text-gray-900 line-clamp-2 pr-2 cursor-pointer"
-              onClick={() => handleNewsItemClick(news.id)}
-            >
-              {news.title}
+            <h3 className="text-base font-semibold text-gray-900 line-clamp-2 pr-2">
+              {user.name}
             </h3>
 
-            {/* Dropdown Trigger */}
+            {/* Area dropdown dengan posisi yang disesuaikan */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => {
                   setActiveDropdown(
-                    activeDropdown === news.id ? null : news.id
+                    activeDropdown === user.id ? null : user.id
                   );
                 }}
                 className="text-gray-500 hover:bg-gray-100 rounded-full p-1"
               >
                 &#8942;
               </button>
-
-              {/* Dropdown Menu */}
-              {activeDropdown === news.id && (
+              {activeDropdown === user.id && (
                 <div className="absolute z-10 right-0 top-[100%] w-48 bg-white border rounded-md shadow-lg">
+                  {" "}
+                  {/* Ubah posisi top dan hapus mt */}
                   <button
                     onClick={() => {
-                      openUpdateModal(news);
+                      openUpdateModal(user);
                       setActiveDropdown(null);
                     }}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
@@ -539,8 +469,8 @@ const PublicNews = () => {
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedNews([news.id]);
-                      handleDeleteNews();
+                      setSelectedUsers([user.id]);
+                      handleDeleteUsers();
                       setActiveDropdown(null);
                     }}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
@@ -552,33 +482,23 @@ const PublicNews = () => {
             </div>
           </div>
 
-          {/* Other content - Clickable */}
-          <div
-            onClick={() => handleNewsItemClick(news.id)}
-            className="cursor-pointer"
-          >
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 w-fit">
-              {categories.find((c) => c.id === news.category)?.name}
-            </span>
-
-            <span className="text-xs text-gray-500 block mt-2">
-              {new Date(news.date).toLocaleDateString("id-ID", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
-
-            <p className="text-sm text-gray-500 line-clamp-2">{news.content}</p>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 flex items-center">
+              <Mail size={16} className="mr-2 text-gray-400" />
+              {user.email}
+            </p>
+            <p className="text-sm text-gray-500 flex items-center">
+              <Phone size={16} className="mr-2 text-gray-400" />
+              {user.phone}
+            </p>
           </div>
         </div>
       </div>
     </div>
   );
 
-  const renderNewsTable = () => (
+  const renderUserTable = () => (
     <div className="md:bg-white md:shadow rounded-lg overflow-x-auto">
-      {/* Desktop View - Table Layout */}
       <table className="w-full hidden sm:table">
         <thead className="bg-gray-50 border-b">
           <tr>
@@ -586,24 +506,22 @@ const PublicNews = () => {
               <input
                 type="checkbox"
                 checked={
-                  filteredNewsData.length > 0 &&
-                  selectedNews.length === filteredNewsData.length
+                  filteredUserData.length > 0 &&
+                  selectedUsers.length === filteredUserData.length
                 }
-                onChange={handleSelectAllNews}
+                onChange={handleSelectAllUsers}
                 className="form-checkbox h-5 w-5 text-indigo-600"
+                onClick={(e) => e.stopPropagation()}
               />
             </th>
             <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Gambar
+              Nama
             </th>
             <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Content
+              Email
             </th>
             <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Kategori
-            </th>
-            <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Tanggal
+              No Telepon
             </th>
             <th className="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Aksi
@@ -611,63 +529,48 @@ const PublicNews = () => {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {filteredNewsData.map((news) => (
-            <tr
-              key={news.id}
-              className="hover:bg-gray-50 transition-colors"
-              onClick={() => handleNewsItemClick(news.id)}
-            >
-              <td className="p-4">
+          {filteredUserData.map((user) => (
+            <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+              <td className="p-4" onClick={(e) => e.stopPropagation()}>
                 <input
                   type="checkbox"
-                  checked={selectedNews.includes(news.id)}
-                  onChange={() => handleSelectNews(news.id)}
+                  checked={selectedUsers.includes(user.id)}
+                  onChange={() => handleSelectUser(user.id)}
                   className="form-checkbox h-5 w-5 text-indigo-600"
                 />
               </td>
-              <td className="p-4">
-                {news.image ? (
-                  <img
-                    src={news.image}
-                    alt={news.title}
-                    className="h-16 w-16 object-cover rounded-md"
-                  />
-                ) : (
-                  <div className="h-16 w-16 bg-gray-200 rounded-md"></div>
-                )}
-              </td>
-              <td className="p-4">
-                <div className="text-sm font-medium text-gray-900 line-clamp-2">
-                  {news.title}
-                </div>
-                <div className="text-sm text-gray-500 line-clamp-1">
-                  {news.content}
+              <td
+                className="p-4 cursor-pointer"
+                onClick={() => navigate(`/user/${user.id}`)}
+              >
+                <div className="text-sm font-medium text-gray-900">
+                  {user.name}
                 </div>
               </td>
-              <td className="p-4">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                  {categories.find((c) => c.id === news.category)?.name}
-                </span>
+              <td
+                className="p-4 cursor-pointer"
+                onClick={() => navigate(`/user/${user.id}`)}
+              >
+                <div className="text-sm text-gray-500">{user.email}</div>
               </td>
-              <td className="p-4 text-sm text-gray-500">
-                {new Date(news.date).toLocaleDateString("id-ID", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+              <td
+                className="p-4 text-sm text-gray-500 cursor-pointer"
+                onClick={() => navigate(`/user/${user.id}`)}
+              >
+                {user.phone}
               </td>
-              <td className="p-4">
+              <td className="p-4" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center space-x-4">
                   <button
-                    onClick={() => openUpdateModal(news)}
+                    onClick={() => openUpdateModal(user)}
                     className="text-indigo-600 hover:text-indigo-900 transition-colors"
                   >
                     <Pencil size={20} />
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedNews([news.id]);
-                      handleDeleteNews();
+                      setSelectedUsers([user.id]);
+                      handleDeleteUsers();
                     }}
                     className="text-red-600 hover:text-red-900 transition-colors"
                   >
@@ -681,19 +584,19 @@ const PublicNews = () => {
       </table>
 
       {/* Mobile View - Card Layout */}
-      <div className="sm:hidden">{filteredNewsData.map(renderNewsCard)}</div>
+      <div className="sm:hidden">{filteredUserData.map(renderUserCard)}</div>
 
       {/* Empty State */}
-      {filteredNewsData.length === 0 && (
+      {filteredUserData.length === 0 && (
         <div className="text-center py-10 px-4">
           <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
             <Search size={48} className="text-gray-400" />
           </div>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            Tidak ada berita ditemukan
+            Tidak ada user ditemukan
           </h3>
           <p className="text-gray-500 mb-4">
-            Coba ubah kata kunci pencarian atau tambahkan berita baru
+            Coba ubah kata kunci pencarian atau tambahkan user baru
           </p>
           <button
             onClick={() => setSearchTerm("")}
@@ -708,21 +611,22 @@ const PublicNews = () => {
 
   const renderModal = (isUpdate = false) => {
     const initialValues = isUpdate
-      ? {
-          ...selectedNewsItem,
-          image: selectedNewsItem.image || null,
-        }
-      : { title: "", date: "", content: "", image: null };
+      ? { ...selectedUser }
+      : { name: "", email: "", phone: "" };
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div className="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 flex justify-between items-center">
             <h2 className="text-xl font-semibold">
-              {isUpdate ? "Perbarui Berita" : "Tambah Berita Baru"}
+              {isUpdate ? "Perbarui User" : "Tambah User Baru"}
             </h2>
             <button
-              onClick={() => handleCloseModal(() => {}, isUpdate)}
+              onClick={() =>
+                isUpdate
+                  ? setIsUpdateModalOpen(false)
+                  : setIsAddModalOpen(false)
+              }
               className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
             >
               <X size={24} />
@@ -730,79 +634,34 @@ const PublicNews = () => {
           </div>
           <Formik
             initialValues={initialValues}
-            validationSchema={NewsSchema}
-            onSubmit={isUpdate ? handleUpdateNews : handleAddNews}
+            validationSchema={UserSchema}
+            onSubmit={isUpdate ? handleUpdateUser : handleAddUser}
           >
-            {({ setFieldValue, errors, touched, resetForm }) => (
+            {({ errors, touched }) => (
               <Form className="p-6 space-y-5">
-                {/* Image Upload */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Gambar Berita
-                  </label>
-                  <div className="flex items-center space-x-4">
-                    <label className="relative cursor-pointer">
-                      <div className="flex items-center space-x-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-100 transition-colors">
-                        <FileImage size={20} />
-                        <span>
-                          {selectedImage ? "Ganti Gambar" : "Pilih Gambar"}
-                        </span>
-                      </div>
-                      <input
-                        type="file"
-                        name="image"
-                        accept="image/jpeg,image/png,image/gif"
-                        onChange={(event) =>
-                          handleImageChange(event, setFieldValue)
-                        }
-                        className="sr-only"
-                      />
-                    </label>
-                    {selectedImage && (
-                      <img
-                        src={selectedImage}
-                        alt="Preview"
-                        className="h-16 w-16 object-cover rounded-md"
-                      />
-                    )}
-                  </div>
-                  <ErrorMessage
-                    name="image"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
-                </div>
-
-                {/* Input Fields */}
                 {[
                   {
-                    name: "title",
-                    label: "Judul",
+                    name: "name",
+                    label: "Nama",
                     type: "text",
-                    placeholder: "Masukkan judul berita",
-                    icon: <Pencil size={20} className="text-gray-400" />,
+                    placeholder: "Masukkan nama user",
+                    icon: <User size={20} className="text-gray-400" />,
                   },
                   {
-                    name: "category", // Tambahkan field kategori
-                    label: "Kategori",
-                    type: "select",
-                    icon: <AlignLeft size={20} className="text-gray-400" />,
-                    options: categories, // Pastikan categories sudah didefinisikan di state
+                    name: "email",
+                    label: "Email",
+                    type: "email",
+                    placeholder: "Masukkan email user",
+                    icon: <Mail size={20} className="text-gray-400" />,
                   },
                   {
-                    name: "date",
-                    label: "Tanggal",
-                    type: "date",
-                    icon: <Calendar size={20} className="text-gray-400" />,
+                    name: "phone",
+                    label: "Nomor Telepon",
+                    type: "tel",
+                    placeholder: "Masukkan nomor telepon",
+                    icon: <Phone size={20} className="text-gray-400" />,
                   },
-                  {
-                    name: "content",
-                    label: "Konten",
-                    type: "textarea",
-                    placeholder: "Masukkan konten berita",
-                    icon: <AlignLeft size={20} className="text-gray-400" />,
-                  },
-                ].map(({ name, label, type, placeholder, icon, options }) => (
+                ].map(({ name, label, type, placeholder, icon }) => (
                   <div key={name} className="relative">
                     <label
                       htmlFor={name}
@@ -814,41 +673,18 @@ const PublicNews = () => {
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         {icon}
                       </div>
-                      {type === "select" ? (
-                        <Field
-                          as="select"
-                          name={name}
-                          id={name}
-                          className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none 
-                            ${
-                              touched[name] && errors[name]
-                                ? "border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500"
-                                : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                            }`}
-                        >
-                          <option value="">Pilih Kategori</option>
-                          {options.map((category) => (
-                            <option key={category.id} value={category.id}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </Field>
-                      ) : (
-                        <Field
-                          type={type}
-                          name={name}
-                          id={name}
-                          as={type === "textarea" ? "textarea" : "input"}
-                          rows={type === "textarea" ? 3 : undefined}
-                          placeholder={placeholder}
-                          className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none 
+                      <Field
+                        type={type}
+                        name={name}
+                        id={name}
+                        placeholder={placeholder}
+                        className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none 
                             ${
                               touched[name] && errors[name]
                                 ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
                                 : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
                             }`}
-                        />
-                      )}
+                      />
                     </div>
                     <ErrorMessage
                       name={name}
@@ -862,7 +698,11 @@ const PublicNews = () => {
                 <div className="flex justify-end space-x-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => handleCloseModal(resetForm, isUpdate)}
+                    onClick={() =>
+                      isUpdate
+                        ? setIsUpdateModalOpen(false)
+                        : setIsAddModalOpen(false)
+                    }
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     Batal
@@ -871,7 +711,7 @@ const PublicNews = () => {
                     type="submit"
                     className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
                   >
-                    {isUpdate ? "Perbarui Berita" : "Tambah Berita"}
+                    {isUpdate ? "Perbarui User" : "Tambah User"}
                   </button>
                 </div>
               </Form>
@@ -883,9 +723,9 @@ const PublicNews = () => {
   };
 
   return (
-    <div className="md:max-w-6xl md:mx-auto  md:px-4">
+    <div className="md:max-w-6xl md:mx-auto md:px-4">
       <div className="flex flex-row justify-between items-center mb-6">
-        <h1 className="text-xl font-bold text-gray-800">Berita Terkini</h1>
+        <h1 className="text-xl font-bold text-gray-800">Daftar User</h1>
         <button
           onClick={() => setIsAddModalOpen(true)}
           className="flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg"
@@ -896,13 +736,11 @@ const PublicNews = () => {
       </div>
 
       {/* Bulk Action Area */}
-      {selectedNews.length > 0 && (
+      {selectedUsers.length > 0 && (
         <div className="bg-indigo-50 p-4 rounded-lg flex justify-between items-center mb-4">
-          <p className="text-indigo-800">
-            {selectedNews.length} berita dipilih
-          </p>
+          <p className="text-indigo-800">{selectedUsers.length} user dipilih</p>
           <button
-            onClick={handleDeleteNews}
+            onClick={handleDeleteUsers}
             className="flex items-center text-red-600 hover:bg-red-100 px-3 py-2 rounded-md transition-colors"
           >
             <Trash2 size={20} className="mr-2" />
@@ -911,7 +749,7 @@ const PublicNews = () => {
         </div>
       )}
 
-      {renderNewsTable()}
+      {renderUserTable()}
 
       {/* Modals */}
       {isAddModalOpen && renderModal()}
@@ -954,7 +792,7 @@ const Pagination = () => (
   </div>
 );
 
-export default function PublicServices() {
+export default function UserPage() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -968,7 +806,7 @@ export default function PublicServices() {
 
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
-            <PublicNews />
+            <TableUser />
             <Pagination />
           </div>
         </main>
