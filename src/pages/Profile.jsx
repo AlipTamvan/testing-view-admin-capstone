@@ -14,6 +14,7 @@ import {
   Edit,
   Mail,
   Camera,
+  ChevronRight,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -283,7 +284,12 @@ const Header = () => {
                   <p className="text-sm font-medium">Halo ! Adam</p>
                   <p className="text-xs text-gray-500">Administrator</p>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronRight
+                  size={20}
+                  className={`transition-transform duration-300 ${
+                    showProfileDropdown ? "rotate-90" : ""
+                  }`}
+                />
               </div>
 
               {showProfileDropdown && (

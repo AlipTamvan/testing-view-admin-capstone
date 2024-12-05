@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Construction,
   Edit,
+  ChevronRight,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -286,7 +287,12 @@ const Header = () => {
                   <p className="text-sm font-medium">Halo ! Adam</p>
                   <p className="text-xs text-gray-500">Administrator</p>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronRight
+                  size={20}
+                  className={`transition-transform duration-300 ${
+                    showProfileDropdown ? "rotate-90" : ""
+                  }`}
+                />
               </div>
 
               {showProfileDropdown && (
@@ -321,26 +327,22 @@ const Header = () => {
     </header>
   );
 };
-
 const MetricCard = ({ title, value }) => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className="text-xl md:text-2xl font-bold mt-1">{value}</p>
+  <div className="bg-white p-3 md:p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+    <h3 className="text-xs md:text-sm lg:text-base font-medium text-gray-500">
+      {title}
+    </h3>
+    <p className="text-lg md:text-xl lg:text-2xl font-bold mt-1">{value}</p>
   </div>
 );
 
-const Chart = () => (
-  <div className="h-[200px] md:h-[300px] mt-4">
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      Chart Placeholder
-    </div>
-  </div>
-);
-
+// RecentComplaints Component
 const RecentComplaints = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent Complaint</h2>
-    <div className="space-y-4">
+  <div className="bg-white p-3 md:p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+    <h2 className="text-base md:text-lg lg:text-xl font-semibold mb-3 md:mb-4">
+      Recent Complaint
+    </h2>
+    <div className="space-y-3 md:space-y-4">
       {[
         {
           name: "Francisco Gibbs",
@@ -355,15 +357,17 @@ const RecentComplaints = () => (
       ].map((item, index) => (
         <div
           key={index}
-          className="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg"
+          className="flex items-center space-x-3 md:space-x-4 p-2 hover:bg-gray-50 rounded-lg"
         >
           <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate">{item.name}</p>
-            <p className="text-sm text-gray-500 truncate">
+            <p className="text-xs md:text-sm lg:text-base font-medium truncate">
+              {item.name}
+            </p>
+            <p className="text-xs md:text-sm text-gray-500 truncate">
               Created Complaint {item.complaint}
             </p>
-            <p className="text-xs text-gray-400">{item.time}</p>
+            <p className="text-[10px] md:text-xs text-gray-400">{item.time}</p>
           </div>
         </div>
       ))}
@@ -371,13 +375,16 @@ const RecentComplaints = () => (
   </div>
 );
 
+// RecentUsers Component
 const RecentUsers = () => (
-  <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-    <h2 className="text-lg font-semibold mb-4">Recent User</h2>
+  <div className="bg-white p-3 md:p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+    <h2 className="text-base md:text-lg lg:text-xl font-semibold mb-3 md:mb-4">
+      Recent User
+    </h2>
     <div className="overflow-x-auto">
       <table className="w-full min-w-[500px]">
         <thead>
-          <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <tr className="text-left text-[10px] md:text-xs lg:text-sm font-medium text-gray-500 uppercase tracking-wider">
             <th className="pb-2 px-2">No Complaint</th>
             <th className="pb-2 px-2">Date Created</th>
             <th className="pb-2 px-2">Client</th>
@@ -387,11 +394,11 @@ const RecentUsers = () => (
         <tbody>
           {[1, 2, 3].map((_, index) => (
             <tr key={index} className="border-t hover:bg-gray-50">
-              <td className="py-2 px-2">ZR-22222</td>
-              <td className="py-2 px-2">3 Jul, 2020</td>
-              <td className="py-2 px-2">Adam kurniawan</td>
+              <td className="py-2 px-2 text-xs md:text-sm">ZR-22222</td>
+              <td className="py-2 px-2 text-xs md:text-sm">3 Jul, 2020</td>
+              <td className="py-2 px-2 text-xs md:text-sm">Adam kurniawan</td>
               <td className="py-2 px-2">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                <span className="px-2 inline-flex text-[10px] md:text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                   PAID
                 </span>
               </td>
@@ -399,6 +406,13 @@ const RecentUsers = () => (
           ))}
         </tbody>
       </table>
+    </div>
+  </div>
+);
+const Chart = () => (
+  <div className="h-[200px] md:h-[300px] mt-4">
+    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
+      Chart Placeholder
     </div>
   </div>
 );
@@ -417,20 +431,22 @@ export default function Dashboard() {
         <Header />
 
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="max-w-7xl mx-auto py-4 md:py-6 px-3 md:px-4 lg:px-8 space-y-4 md:space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               <MetricCard title="Complaint Masuk" value={20} />
               <MetricCard title="Feedback Selesai" value={20} />
               <MetricCard title="Category Complaint" value={20} />
               <MetricCard title="Import CSV" value={20} />
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-              <h2 className="text-lg font-semibold mb-4">Complaint Grafik</h2>
+            <div className="bg-white p-3 md:p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+              <h2 className="text-base md:text-lg lg:text-xl font-semibold mb-3 md:mb-4">
+                Complaint Grafik
+              </h2>
               <Chart />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <RecentComplaints />
               <RecentUsers />
             </div>
