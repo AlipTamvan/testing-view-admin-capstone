@@ -324,23 +324,31 @@ const Header = () => {
 
 const News = () => {
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
+  const navigate = useNavigate();
+
+  // Handle navigation back to previous page
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   const commenters = [
     { name: "Leo Messi", image: "/placeholder.svg?height=48&width=48" },
     { name: "Ariska", image: "/placeholder.svg?height=48&width=48" },
     { name: "Restanti", image: "/placeholder.svg?height=48&width=48" },
   ];
   return (
-    <div className="min-h-screen lg:p-4 md:p-0">
+    <div className="min-h-screen lg:px-4 md:p-0">
       {/* Back Button */}
       <div className="mb-6">
         <button
-          // onClick={handleGoBack}
+          onClick={handleGoBack}
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ChevronLeft className="mr-2" />
-          <span>Kembali</span>
+          <span className="text-sm md:text-base">Kembali</span>
         </button>
       </div>
+
       <div className=" mx-auto p-4 bg-white rounded-md">
         {/* Gambar dan Judul */}
         <div className="flex flex-col md:flex-row mb-6">

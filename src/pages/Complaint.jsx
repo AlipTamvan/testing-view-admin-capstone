@@ -541,9 +541,9 @@ export default function Complaint() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar className="hidden md:block w-64 fixed h-full" />
+      <Sidebar className="hidden lg:block w-64 fixed h-full" />
 
-      <div className="flex-1 flex flex-col md:ml-64">
+      <div className="flex-1 flex flex-col lg:ml-64">
         <Header />
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">

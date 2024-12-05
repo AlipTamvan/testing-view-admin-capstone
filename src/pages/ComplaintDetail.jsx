@@ -339,9 +339,9 @@ const ComplaintForm = () => {
     { id: 3, src: "/placeholder3.jpg" },
   ];
 
-  // Handle navigation back to complaint page
+  // Handle navigation back to previous page
   const handleGoBack = () => {
-    navigate("/complaint");
+    navigate(-1);
   };
 
   // Handle image slider navigation
@@ -373,7 +373,7 @@ const ComplaintForm = () => {
   };
 
   return (
-    <div className="min-h-screen lg:p-4 md:p-0 pb-24 md:pb-6">
+    <div className="min-h-screen lg:px-4 md:p-0 pb-24 md:pb-6">
       {/* Back Button */}
       <div className="mb-6">
         <button
@@ -524,8 +524,7 @@ export default function ComplaintDetail() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar className="hidden md:block w-64 fixed h-full" />
-
+      <Sidebar className="hidden lg:block w-64 fixed h-full" />
       {/* Main Content */}
       <div className="flex-1 md:ml-64">
         <Header />

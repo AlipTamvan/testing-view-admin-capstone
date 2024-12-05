@@ -452,16 +452,21 @@ const Detail = () => {
     }, {});
   }, [user.complaints]);
 
+  // Handle navigation back to previous page
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
-    <div className="mx-auto  md:px-4">
+    <div className="mx-auto  lg:px-4 md:px-4">
       {/* Back Button */}
       <div className="mb-6">
         <button
-          // onClick={handleGoBack}
+          onClick={handleGoBack}
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ChevronLeft className="mr-2" />
-          <span>Kembali</span>
+          <span className="text-sm md:text-base">Kembali</span>
         </button>
       </div>
 
