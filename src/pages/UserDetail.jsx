@@ -64,10 +64,10 @@ const Sidebar = ({ className, onClose }) => {
           <Link
             key={label}
             to={path}
-            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
+            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors duration-300 ${
               isActivePath(path)
                 ? "bg-white text-indigo-700"
-                : "text-white hover:text-indigo-200 hover:bg-indigo-600"
+                : "text-white hover:bg-indigo-500/95 hover:text-white"
             }`}
           >
             <Icon size={20} />
@@ -78,7 +78,7 @@ const Sidebar = ({ className, onClose }) => {
       <div>
         <a
           href="#"
-          className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          className="flex items-center space-x-2 text-white hover:bg-indigo-500/70 hover:text-white py-2 px-2 rounded-lg transition-colors duration-300"
         >
           <LogOut size={20} />
           <span className="text-sm md:text-base">Log-Out</span>
@@ -458,7 +458,7 @@ const Detail = () => {
   };
 
   return (
-    <div className="mx-auto  lg:px-4 md:px-4">
+    <div className="mx-auto lg:px-4 md:px-4">
       {/* Back Button */}
       <div className="mb-6">
         <button
@@ -521,7 +521,7 @@ const Detail = () => {
                   : status === "resolved"
                   ? "Selesai"
                   : status === "open"
-                  ? "Buka"
+                  ? "Batal"
                   : status}
               </p>
             </div>
@@ -549,25 +549,27 @@ const Detail = () => {
           <div className="mt-4">
             {Object.entries(complaintsByYear).map(([year, yearComplaints]) => (
               <div key={year} className="mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
-                  {year}
-                </h3>
                 <div className="space-y-4">
                   {yearComplaints.map((complaint) => (
                     <div
                       key={complaint.id}
-                      className="flex flex-col sm:flex-row items-start border-b pb-4 last:border-b-0"
+                      className="flex items-start border-b pb-4 last:border-b-0"
                     >
-                      <div className="mb-2 sm:mb-0 sm:mr-4">
+                      <div className="mr-4 mt-1">
                         {renderComplaintIcon(complaint.category)}
                       </div>
                       <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
-                          <h3 className="text-sm sm:text-base font-semibold text-gray-800">
-                            {complaint.title}
-                          </h3>
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1 mr-2">
+                            <h3 className="text-sm sm:text-base font-semibold text-gray-800">
+                              {complaint.title}
+                            </h3>
+                            <p className="text-xs text-gray-600 mt-1">
+                              {complaint.description}
+                            </p>
+                          </div>
                           <span
-                            className={`text-xs px-2 py-1 rounded ${
+                            className={`text-xs px-2 py-1 rounded whitespace-nowrap ${
                               complaint.status === "open"
                                 ? "bg-red-100 text-red-800"
                                 : complaint.status === "in-progress"
@@ -580,18 +582,13 @@ const Detail = () => {
                               : complaint.status === "resolved"
                               ? "Selesai"
                               : complaint.status === "open"
-                              ? "Buka"
+                              ? "Batal"
                               : complaint.status}
                           </span>
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-1">
-                          {complaint.description}
-                        </p>
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                          <p className="text-xs text-gray-500">
-                            Lokasi: {complaint.location}
-                          </p>
-                          <p className="text-xs text-gray-500">
+                        <div className="flex justify-between items-center text-xs text-gray-500">
+                          <p className="w-2/3">Lokasi: {complaint.location}</p>
+                          <p className="flex-grow text-right">
                             {complaint.date}
                           </p>
                         </div>

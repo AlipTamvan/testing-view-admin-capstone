@@ -56,10 +56,10 @@ const Sidebar = ({ className, onClose }) => {
           <Link
             key={label}
             to={path}
-            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
+            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors duration-300 ${
               isActivePath(path)
                 ? "bg-white text-indigo-700"
-                : "text-white hover:text-indigo-200 hover:bg-indigo-600"
+                : "text-white hover:bg-indigo-500/95 hover:text-white"
             }`}
           >
             <Icon size={20} />
@@ -70,7 +70,7 @@ const Sidebar = ({ className, onClose }) => {
       <div>
         <a
           href="#"
-          className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          className="flex items-center space-x-2 text-white hover:bg-indigo-500/70 hover:text-white py-2 px-2 rounded-lg transition-colors duration-300"
         >
           <LogOut size={20} />
           <span className="text-sm md:text-base">Log-Out</span>
@@ -79,7 +79,6 @@ const Sidebar = ({ className, onClose }) => {
     </div>
   );
 };
-
 const BottomNavigation = () => {
   const location = useLocation();
 
@@ -397,10 +396,22 @@ const ComplaintList = () => {
 
   return (
     <div className="space-y-4 md:px-4 lg:px-4">
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
+      <div className="flex flex-col gap-4 mb-4">
+        {/* Header Section */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-bold text-gray-800">Daftar Complaint</h1>
+          <button
+            onClick={handleImportCSV}
+            className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm md:text-base whitespace-nowrap"
+          >
+            <FileUp size={18} className="mr-2" />
+            <span>Import CSV</span>
+          </button>
+        </div>
+
         {/* Filter Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 flex-grow">
-          <div className="relative w-full sm:w-1/2">
+        <div className="flex flex-row gap-4">
+          <div className="relative w-1/2">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -418,7 +429,7 @@ const ComplaintList = () => {
             />
           </div>
 
-          <div className="relative w-full sm:w-1/2">
+          <div className="relative w-1/2">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -436,15 +447,6 @@ const ComplaintList = () => {
             />
           </div>
         </div>
-
-        {/* Import CSV Button */}
-        <button
-          onClick={handleImportCSV}
-          className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white  rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm md:text-base whitespace-nowrap"
-        >
-          <FileUp size={18} className="mr-2" />
-          <span>Import CSV</span>
-        </button>
       </div>
 
       {filteredComplaints.length === 0 ? (

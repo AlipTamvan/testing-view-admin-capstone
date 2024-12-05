@@ -61,10 +61,10 @@ const Sidebar = ({ className, onClose }) => {
           <Link
             key={label}
             to={path}
-            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
+            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors duration-300 ${
               isActivePath(path)
                 ? "bg-white text-indigo-700"
-                : "text-white hover:text-indigo-200 hover:bg-indigo-600"
+                : "text-white hover:bg-indigo-500/95 hover:text-white"
             }`}
           >
             <Icon size={20} />
@@ -75,7 +75,7 @@ const Sidebar = ({ className, onClose }) => {
       <div>
         <a
           href="#"
-          className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          className="flex items-center space-x-2 text-white hover:bg-indigo-500/70 hover:text-white py-2 px-2 rounded-lg transition-colors duration-300"
         >
           <LogOut size={20} />
           <span className="text-sm md:text-base">Log-Out</span>

@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const Sidebar = ({ className, onClose }) => {
   const location = useLocation();
@@ -56,10 +58,10 @@ const Sidebar = ({ className, onClose }) => {
           <Link
             key={label}
             to={path}
-            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors ${
+            className={`flex items-center space-x-2 py-2 px-2 rounded-lg transition-colors duration-300 ${
               isActivePath(path)
                 ? "bg-white text-indigo-700"
-                : "text-white hover:text-indigo-200 hover:bg-indigo-600"
+                : "text-white hover:bg-indigo-500/95 hover:text-white"
             }`}
           >
             <Icon size={20} />
@@ -70,7 +72,7 @@ const Sidebar = ({ className, onClose }) => {
       <div>
         <a
           href="#"
-          className="flex items-center space-x-2 text-white hover:text-indigo-200 py-2 px-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          className="flex items-center space-x-2 text-white hover:bg-indigo-500/70 hover:text-white py-2 px-2 rounded-lg transition-colors duration-300"
         >
           <LogOut size={20} />
           <span className="text-sm md:text-base">Log-Out</span>
@@ -324,118 +326,268 @@ const Header = () => {
 
 const News = () => {
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
+  const [newsImage, setNewsImage] = useState(null);
+  const fileInputRef = useRef(null);
+
   const navigate = useNavigate();
+
+  const commenters = [
+    {
+      name: "Leo Messi",
+      image: "/placeholder.svg?height=48&width=48",
+      comment: "Ini akibat masyarakat sering buang sampah sembarangan.",
+    },
+    {
+      name: "Ariska",
+      image: "/placeholder.svg?height=48&width=48",
+      comment: "Pemerintah harus bertindak tegas dalam menangani hal ini.",
+    },
+  ];
+
+  const NewsSchema = Yup.object().shape({
+    title: Yup.string()
+      .min(5, "Judul terlalu pendek")
+      .required("Judul wajib diisi"),
+    category: Yup.string().required("Kategori wajib dipilih"),
+    date: Yup.date().required("Tanggal wajib diisi"),
+    content: Yup.string()
+      .min(20, "Konten minimal 20 karakter")
+      .required("Konten wajib diisi"),
+  });
+
+  const initialValues = {
+    title: "Pemerintah Meningkatkan Ketangguhan Bencana Alam",
+    category: "Lingkungan",
+    date: "2024-11-20",
+    content:
+      "Pemerintah Indonesia telah mengumumkan serangkaian langkah penanggulangan bencana...",
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setNewsImage(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Handle navigation back to previous page
   const handleGoBack = () => {
     navigate(-1);
   };
 
-  const commenters = [
-    { name: "Leo Messi", image: "/placeholder.svg?height=48&width=48" },
-    { name: "Ariska", image: "/placeholder.svg?height=48&width=48" },
-    { name: "Restanti", image: "/placeholder.svg?height=48&width=48" },
-  ];
   return (
     <div className="min-h-screen lg:px-4 md:p-0">
-      {/* Back Button */}
       <div className="mb-6">
         <button
           onClick={handleGoBack}
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
-          <ChevronLeft className="mr-2" />
-          <span className="text-sm md:text-base">Kembali</span>
+          <ChevronLeft className="mr-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+          <span className="text-xs sm:text-sm md:text-base">Kembali</span>
         </button>
       </div>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={NewsSchema}
+        onSubmit={(values) => {
+          console.log("Updated news:", values);
+        }}
+      >
+        {({ touched, errors, setFieldValue }) => (
+          <Form className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative">
+                <div
+                  onClick={() => fileInputRef.current.click()}
+                  className="w-full h-48 sm:h-56 md:h-64 lg:h-72 bg-gray-200 rounded-md flex items-center justify-center cursor-pointer overflow-hidden relative"
+                >
+                  {newsImage ? (
+                    <img
+                      src={newsImage}
+                      alt="Berita"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-500 text-sm sm:text-base md:text-lg">
+                      Klik untuk ganti gambar
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    handleImageChange(e);
+                    setFieldValue("newsImage", e.target.files[0]);
+                  }}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                {/* Judul */}
+                <div>
+                  <label
+                    htmlFor="title"
+                    className="block text-xs sm:text-sm md:text-base font-bold text-gray-700"
+                  >
+                    Judul
+                  </label>
+                  <Field
+                    type="text"
+                    name="title"
+                    className={`w-full rounded-lg p-2 sm:p-3 text-xs sm:text-sm md:text-base border ${
+                      errors.title && touched.title
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                  <ErrorMessage
+                    name="title"
+                    component="div"
+                    className="text-red-500 text-xs sm:text-sm mt-1"
+                  />
+                </div>
 
-      <div className=" mx-auto p-4 bg-white rounded-md">
-        {/* Gambar dan Judul */}
-        <div className="flex flex-col md:flex-row mb-6">
-          {" "}
-          {/* Ubah lg:flex-row menjadi md:flex-row */}
-          <div className="md:w-1/2 mb-4 md:mb-0 md:mr-4">
-            {" "}
-            {/* Ubah lg menjadi md */}
-            <div className="bg-gray-300 h-[200px] md:h-[300px] w-full rounded-lg"></div>
-          </div>
-          <div className="md:w-1/2 flex flex-col w-full">
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight break-words lg:mb-4 md:mb-4">
-              Pemerintah Meningkatkan Ketangguhan Bencana Alam Di Berbagai
-              Daerah
-            </h1>
-            <div className="mt-2 lg:mb-4 md:mb-4">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs md:text-sm font-medium bg-indigo-100 text-indigo-800">
-                Lingkungan
-              </span>
-            </div>
-            <div className="text-xs md:text-sm text-gray-500 flex flex-wrap md:flex-nowrap space-x-4 mt-2">
-              <span>By Lucy Hiddleston</span>
-              <span>20-NOV-2024</span>
-            </div>
-          </div>
-        </div>
-        {/* Deskripsi */}
-        <div className="text-gray-700 leading-relaxed text-sm md:text-base space-y-4 break-words">
-          <p>
-            Pemerintah Indonesia telah mengumumkan serangkaian langkah
-            penanggulangan bencana sebagai respons terhadap bencana alam yang
-            baru-baru ini melanda beberapa wilayah di Tanah Air. Langkah ini
-            bertujuan untuk memastikan keselamatan, pemulihan, dan dukungan bagi
-            masyarakat terdampak.
-          </p>
-          <p>
-            <span className="font-semibold text-gray-900">
-              Menteri Koordinator Bidang Pembangunan Manusia dan Kebudayaan
-            </span>
-            menyatakan bahwa prioritas utama pemerintah adalah mengevakuasi
-            warga dari daerah berisiko tinggi, memberikan kebutuhan dasar, dan
-            memastikan akses kesehatan tetap berjalan. "Kami bekerja sama dengan
-            pemerintah daerah, relawan, dan lembaga internasional untuk
-            memastikan penanggulangan berjalan cepat dan tepat sasaran," ujar
-            beliau.
-          </p>
-        </div>
-      </div>
+                {/* Kategori */}
+                <div>
+                  <label
+                    htmlFor="category"
+                    className="block text-xs sm:text-sm md:text-base font-bold text-gray-700"
+                  >
+                    Kategori
+                  </label>
+                  <Field
+                    as="select"
+                    name="category"
+                    className={`w-full rounded-lg p-2 sm:p-3 text-xs sm:text-sm md:text-base border ${
+                      errors.category && touched.category
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <option value="">Pilih Kategori</option>
+                    <option value="Kesehatan">Kesehatan</option>
+                    <option value="Tranportasi">Tranportasi</option>
+                    <option value="Infrastruktur">Infrastruktur</option>
+                    <option value="Pendidikan">Pendidikan</option>
+                    <option value="Kemanan">Keamanan</option>
+                    <option value="Linkungan">Lingkungan</option>
+                  </Field>
+                  <ErrorMessage
+                    name="category"
+                    component="div"
+                    className="text-red-500 text-xs sm:text-sm mt-1"
+                  />
+                </div>
 
+                {/* Tanggal */}
+                <div>
+                  <label
+                    htmlFor="date"
+                    className="block text-xs sm:text-sm md:text-base font-bold text-gray-700"
+                  >
+                    Tanggal
+                  </label>
+                  <Field
+                    type="date"
+                    name="date"
+                    className={`w-full rounded-lg p-2 sm:p-3 text-xs sm:text-sm md:text-base border ${
+                      errors.date && touched.date
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                  <ErrorMessage
+                    name="date"
+                    component="div"
+                    className="text-red-500 text-xs sm:text-sm mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Konten */}
+            <div>
+              <label
+                htmlFor="content"
+                className="block text-xs sm:text-sm md:text-base font-bold text-gray-700"
+              >
+                Konten
+              </label>
+              <Field
+                as="textarea"
+                name="content"
+                rows="5"
+                className={`w-full rounded-lg p-2 sm:p-3 text-xs sm:text-sm md:text-base border ${
+                  errors.content && touched.content
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300"
+                }`}
+              />
+              <ErrorMessage
+                name="content"
+                component="div"
+                className="text-red-500 text-xs sm:text-sm mt-1"
+              />
+            </div>
+
+            {/* Tombol Submit */}
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="flex items-center justify-center text-xs sm:text-sm md:text-base bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg mb-1"
+              >
+                Update Berita
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+      {/* Komentar */}
       <div className="col-span-full mt-6 p-4 bg-white rounded-md">
-        {/* Header Komentar */}
         <div
           className="flex justify-between items-center cursor-pointer"
           onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
         >
-          <h2 className="text-lg md:text-xl lg:text-2xl font-bold">Komentar</h2>
+          <h2 className="text-base sm:text-lg md:text-xl font-bold">
+            Komentar
+          </h2>
           <ChevronRight
-            className={`transition-transform duration-300 ${
+            className={`transition-transform duration-300 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${
               isCommentsExpanded ? "rotate-90" : ""
             }`}
           />
         </div>
 
-        {/* Daftar Komentar */}
         {isCommentsExpanded && (
-          <div className="space-y-4 mt-4">
+          <div className="space-y-3 mt-4">
             {commenters.map((commenter, index) => (
               <div
                 key={index}
-                className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-gray-50 rounded-lg"
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
               >
-                {/* Avatar */}
-                <div className="bg-gray-300 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0"></div>
+                {/* Gambar */}
+                <div className="bg-gray-300 w-8 h-8 sm:w-10 sm:h-10 rounded-full"></div>
 
                 {/* Konten Komentar */}
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                  <h3 className="font-semibold text-gray-900 text-xs sm:text-sm md:text-base">
                     {commenter.name}
                   </h3>
-                  <p className="text-gray-600 text-sm md:text-base leading-relaxed break-words">
-                    Ini akibat masyarakat sering buang sampah sembarangan.
+                  <p className="text-gray-600 text-xs sm:text-sm md:text-base">
+                    {commenter.comment}
                   </p>
                 </div>
 
                 {/* Tombol Hapus */}
-                <button className="text-red-500 hover:text-red-600 sm:mt-0 sm:ml-4 mt-2 lg:mt-4">
-                  <Trash2 className="w-5 h-5" />
+                <button
+                  onClick={() => handleDeleteComment(index)}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-4" />
                 </button>
               </div>
             ))}
