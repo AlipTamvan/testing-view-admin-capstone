@@ -16,6 +16,8 @@ import {
   Edit,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 // Sidebar Component
 const Sidebar = ({ className, onClose }) => {
@@ -318,8 +320,7 @@ const Header = () => {
   );
 };
 
-// Main Complaint Detail Component
-export default function ComplaintDetail() {
+const ComplaintForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -349,22 +350,176 @@ export default function ComplaintDetail() {
     );
   };
 
+  // Validation schema
+  const validationSchema = Yup.object().shape({
+    response: Yup.string()
+      .required("Tanggapan wajib diisi")
+      .min(10, "Tanggapan minimal 10 karakter")
+      .max(500, "Tanggapan maksimal 500 karakter"),
+  });
+
+  const handleSubmit = (values, { setSubmitting, resetForm }) => {
+    // Simulate API call
+    setTimeout(() => {
+      console.log("Response submitted:", values);
+      resetForm();
+      setSubmitting(false);
+    }, 400);
+  };
+
+  return (
+    <div className="min-h-screen lg:p-4 md:p-0 pb-24 md:pb-6">
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={handleGoBack}
+          className="flex items-center text-gray-600 hover:text-gray-900"
+        >
+          <ChevronLeft className="mr-2" />
+          <span className="text-sm md:text-base">Kembali</span>
+        </button>
+      </div>
+
+      {/* Complaint Details Card */}
+      <div className="bg-white rounded-lg shadow p-4 md:p-6">
+        {/* Complaint Header */}
+        <div className="flex justify-between items-start mb-4 md:mb-6">
+          <div className="flex items-center space-x-3 md:space-x-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-300 rounded-full flex-shrink-0"></div>
+            <h2 className="text-lg md:text-xl font-semibold">Adam Kurniawan</h2>
+          </div>
+          <span className="px-2 md:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs md:text-sm">
+            PROGRESS
+          </span>
+        </div>
+
+        {/* Complaint Description */}
+        <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6">
+          Terjadi kebakaran pada pukul 20.00 di cinere jawa barat
+        </p>
+
+        {/* Responsive Image Display */}
+        <div className="mb-8">
+          {/* Mobile Slider */}
+          <div className="md:hidden relative">
+            <div className="aspect-square rounded-lg bg-gray-300 overflow-hidden relative">
+              {images.map((img, index) => (
+                <div
+                  key={img.id}
+                  className={`absolute inset-0 transition-opacity duration-300 ${
+                    index === currentImageIndex ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <div className="w-full h-full bg-gray-300"></div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile Navigation Buttons */}
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-2"
+            >
+              <ChevronLeft />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-2"
+            >
+              <ChevronRight />
+            </button>
+
+            {/* Image Indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">
+              {images.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentImageIndex
+                      ? "bg-indigo-600"
+                      : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop/Tablet Grid Display */}
+          <div className="hidden md:grid grid-cols-3 gap-4">
+            {images.map((img) => (
+              <div
+                key={img.id}
+                className="aspect-square rounded-lg bg-gray-300 overflow-hidden"
+              >
+                {/* Placeholder for image - replace with actual image when available */}
+                <div className="w-full h-full bg-gray-300"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Response Section with Formik */}
+        <div className="border-t pt-4 md:pt-6">
+          <h3 className="font-medium mb-3 md:mb-4 text-sm md:text-base">
+            Tanggapan
+          </h3>
+          <Formik
+            initialValues={{ response: "" }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ errors, touched, isSubmitting }) => (
+              <Form className="space-y-4">
+                <div className="space-y-2">
+                  <Field
+                    as="textarea"
+                    name="response"
+                    placeholder="Isi Tanggapan Disini"
+                    className={`
+                      w-full p-3 md:p-4 rounded-lg border text-sm md:text-base
+                      focus:outline-none focus:ring-2 transition-all duration-300
+                      ${
+                        errors.response && touched.response
+                          ? "border-red-500 focus:ring-red-500 bg-red-50"
+                          : "border-gray-300 focus:ring-indigo-500 hover:border-indigo-500/50"
+                      }
+                    `}
+                    rows={4}
+                  />
+                  <ErrorMessage
+                    name="response"
+                    component="div"
+                    className="text-red-500 text-xs md:text-sm mt-1"
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-4 md:px-6 py-2 bg-indigo-600 text-white rounded-lg 
+                    hover:bg-indigo-700 transition-all duration-300 
+                    text-sm md:text-base disabled:opacity-50 
+                    disabled:cursor-not-allowed transform active:scale-95"
+                  >
+                    {isSubmitting ? "Mengirim..." : "Kirim"}
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Complaint Detail Component
+export default function ComplaintDetail() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar className="hidden md:block w-64 fixed h-full" />
-
-      {/* Mobile Sidebar */}
-      {isSidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 w-64 flex">
-            <Sidebar onClose={() => setIsSidebarOpen(false)} />
-          </div>
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="flex-1 md:ml-64">
@@ -373,116 +528,7 @@ export default function ComplaintDetail() {
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
-            <div className="min-h-screen lg:p-4 md:p-0">
-              {/* Back Button */}
-              <div className="mb-6">
-                <button
-                  onClick={handleGoBack}
-                  className="flex items-center text-gray-600 hover:text-gray-900"
-                >
-                  <ChevronLeft className="mr-2" />
-                  <span>Kembali</span>
-                </button>
-              </div>
-
-              {/* Complaint Details Card */}
-              <div className="bg-white rounded-lg shadow p-6">
-                {/* Complaint Header */}
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 md:w-10 md:h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
-                    <h2 className="text-xl font-semibold">Adam Kurniawan</h2>
-                  </div>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                    PROGRESS
-                  </span>
-                </div>
-
-                {/* Complaint Description */}
-                <p className="text-gray-600 mb-6">
-                  Terjadi kebakaran pada pukul 20.00 di cinere jawa barat
-                </p>
-
-                {/* Responsive Image Display */}
-                <div className="mb-8">
-                  {/* Mobile Slider */}
-                  <div className="md:hidden relative">
-                    <div className="aspect-square rounded-lg bg-gray-300 overflow-hidden relative">
-                      {images.map((img, index) => (
-                        <div
-                          key={img.id}
-                          className={`absolute inset-0 transition-opacity duration-300 ${
-                            index === currentImageIndex
-                              ? "opacity-100"
-                              : "opacity-0"
-                          }`}
-                        >
-                          <div className="w-full h-full bg-gray-300"></div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Mobile Navigation Buttons */}
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-2"
-                    >
-                      <ChevronLeft />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-2"
-                    >
-                      <ChevronRight />
-                    </button>
-
-                    {/* Image Indicator */}
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">
-                      {images.map((_, index) => (
-                        <div
-                          key={index}
-                          className={`w-2 h-2 rounded-full ${
-                            index === currentImageIndex
-                              ? "bg-indigo-600"
-                              : "bg-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Desktop/Tablet Grid Display */}
-                  <div className="hidden md:grid grid-cols-3 gap-4">
-                    {images.map((img) => (
-                      <div
-                        key={img.id}
-                        className="aspect-square rounded-lg bg-gray-300 overflow-hidden"
-                      >
-                        {/* Placeholder for image - replace with actual image when available */}
-                        <div className="w-full h-full bg-gray-300"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Response Section */}
-                <div className="border-t pt-6">
-                  <h3 className="font-medium mb-4">Tanggapan</h3>
-                  <div className="space-y-4">
-                    <textarea
-                      placeholder="Isi Tanggapan Disini"
-                      className="w-full p-4 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      rows={4}
-                    />
-                    <div className="flex justify-end">
-                      <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                        Kirim
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ComplaintForm />
           </div>
         </main>
         <BottomNavigation />
