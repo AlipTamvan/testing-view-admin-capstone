@@ -386,8 +386,11 @@ const PublicNews = () => {
       .min(20, "Konten terlalu pendek!")
       .max(500, "Konten terlalu panjang!")
       .required("Konten wajib diisi"),
-    category: Yup.number().required("Kategori wajib dipilih"),
+    category: Yup.string() // Ubah menjadi string karena value select adalah string
+      .required("Kategori wajib dipilih")
+      .nullable(), // Tambahkan nullable() untuk handle nilai kosong
     image: Yup.mixed()
+      .required("Gambar tidak boleh kosong") // Ubah pesan error
       .test("fileSize", "Ukuran file terlalu besar", (value) => {
         return !value || value.size <= 5 * 1024 * 1024;
       })
@@ -589,7 +592,10 @@ const PublicNews = () => {
                   filteredNewsData.length > 0 &&
                   selectedNews.length === filteredNewsData.length
                 }
-                onChange={handleSelectAllNews}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  handleSelectAllNews();
+                }}
                 className="form-checkbox h-5 w-5 text-indigo-600"
               />
             </th>
@@ -614,18 +620,23 @@ const PublicNews = () => {
           {filteredNewsData.map((news) => (
             <tr
               key={news.id}
-              className="hover:bg-gray-50 transition-colors"
-              onClick={() => handleNewsItemClick(news.id)}
+              className="hover:bg-gray-50 transition-colors cursor-pointer"
             >
-              <td className="p-4">
+              {/* Checkbox Cell */}
+              <td className="p-4" onClick={(e) => e.stopPropagation()}>
                 <input
                   type="checkbox"
                   checked={selectedNews.includes(news.id)}
-                  onChange={() => handleSelectNews(news.id)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleSelectNews(news.id);
+                  }}
                   className="form-checkbox h-5 w-5 text-indigo-600"
                 />
               </td>
-              <td className="p-4">
+
+              {/* Image Cell */}
+              <td className="p-4" onClick={() => handleNewsItemClick(news.id)}>
                 {news.image ? (
                   <img
                     src={news.image}
@@ -636,7 +647,9 @@ const PublicNews = () => {
                   <div className="h-16 w-16 bg-gray-200 rounded-md"></div>
                 )}
               </td>
-              <td className="p-4">
+
+              {/* Content Cell */}
+              <td className="p-4" onClick={() => handleNewsItemClick(news.id)}>
                 <div className="text-sm font-medium text-gray-900 line-clamp-2">
                   {news.title}
                 </div>
@@ -644,28 +657,41 @@ const PublicNews = () => {
                   {news.content}
                 </div>
               </td>
-              <td className="p-4">
+
+              {/* Category Cell */}
+              <td className="p-4" onClick={() => handleNewsItemClick(news.id)}>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                   {categories.find((c) => c.id === news.category)?.name}
                 </span>
               </td>
-              <td className="p-4 text-sm text-gray-500">
+
+              {/* Date Cell */}
+              <td
+                className="p-4 text-sm text-gray-500"
+                onClick={() => handleNewsItemClick(news.id)}
+              >
                 {new Date(news.date).toLocaleDateString("id-ID", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })}
               </td>
-              <td className="p-4">
+
+              {/* Actions Cell */}
+              <td className="p-4" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center space-x-4">
                   <button
-                    onClick={() => openUpdateModal(news)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openUpdateModal(news);
+                    }}
                     className="text-indigo-600 hover:text-indigo-900 transition-colors"
                   >
                     <Pencil size={20} />
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedNews([news.id]);
                       handleDeleteNews();
                     }}
@@ -705,14 +731,14 @@ const PublicNews = () => {
       )}
     </div>
   );
-
   const renderModal = (isUpdate = false) => {
     const initialValues = isUpdate
       ? {
           ...selectedNewsItem,
           image: selectedNewsItem.image || null,
+          category: selectedNewsItem.category?.toString() || "",
         }
-      : { title: "", date: "", content: "", image: null };
+      : { title: "", date: "", content: "", category: "", image: null };
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">

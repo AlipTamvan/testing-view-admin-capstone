@@ -11,6 +11,7 @@ import {
   Users,
   User,
   X,
+  FileUp,
   Edit,
 } from "lucide-react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
@@ -321,14 +322,12 @@ const ComplaintList = () => {
 
   const complaintCategories = [
     { value: "ALL", label: "Semua Kategori" },
-    { value: "KEBAKARAN", label: "Kebakaran" },
-    { value: "KEMACETAN", label: "Kemacetan" },
-    { value: "KECELAKAAN", label: "Kecelakaan" },
-    { value: "POHON_TUMBANG", label: "Pohon Tumbang" },
-    { value: "PEMBEGALAN", label: "Pembegalan" },
-    { value: "BANJIR", label: "Banjir" },
-    { value: "PENCURIAN", label: "Pencurian" },
-    { value: "KESEHATAN", label: "Masalah Kesehatan" },
+    { value: "KESEHATAN", label: "Kesehatan" },
+    { value: "TRANSPORTASI", label: "Transportasi" },
+    { value: "INFRASTRUKTUR", label: "Infrastruktur" },
+    { value: "PENDIDIKAN", label: "Pendidikan" },
+    { value: "KEAMANAN", label: "Keamanan" },
+    { value: "LINGKUNGAN", label: "Lingkungan" },
   ];
 
   const complaintStatuses = [
@@ -341,41 +340,46 @@ const ComplaintList = () => {
   const complaintsData = [
     {
       name: "Adam Kurniawan",
-      complaint: "Terjadi kebakaran pada pukul 20.00 di cinere jawa barat",
+      complaint: "Fasilitas kesehatan di puskesmas kurang memadai",
       status: "PROGRESS",
-      category: "KEBAKARAN",
+      category: "KESEHATAN",
     },
     {
       name: "Ariska Sari",
-      complaint: "Terjadi macet pada pukul 20.00 di cinere jawa barat",
+      complaint: "Kemacetan parah di jalan raya",
       status: "SELESAI",
-      category: "KEMACETAN",
+      category: "TRANSPORTASI",
     },
     {
-      name: "taehyoung",
-      complaint: "Terjadi kecelakaan pada pukul 20.00 di cinere jawa barat",
+      name: "Taehyung",
+      complaint: "Jalan rusak dan berlubang",
       status: "PROGRESS",
-      category: "KECELAKAAN",
+      category: "INFRASTRUKTUR",
     },
     {
       name: "Aliva",
-      complaint: "Terjadi pohon tumbang pada pukul 20.00 di cinere jawa barat",
+      complaint: "Kurangnya fasilitas belajar",
       status: "CANCEL",
-      category: "POHON_TUMBANG",
+      category: "PENDIDIKAN",
     },
     {
       name: "Restanti",
-      complaint: "Terjadi pembegalan pada pukul 20.00 di cinere jawa barat",
+      complaint: "Pencurian motor di area parkir",
       status: "SELESAI",
-      category: "PEMBEGALAN",
+      category: "KEAMANAN",
     },
     {
       name: "Budi Setiawan",
-      complaint: "Terjadi banjir di perumahan",
+      complaint: "Sampah menumpuk di pinggir jalan",
       status: "PROGRESS",
-      category: "BANJIR",
+      category: "LINGKUNGAN",
     },
   ];
+
+  const handleImportCSV = () => {
+    // Implementasi import CSV
+    console.log("Import CSV clicked");
+  };
 
   const filteredComplaints = complaintsData.filter((item) => {
     const categoryFilter =
@@ -387,47 +391,59 @@ const ComplaintList = () => {
 
   return (
     <div className="space-y-4 md:px-4 lg:px-4">
-      <div className="flex flex-col-2 md:flex-row mb-4 gap-4">
-        <div className="relative w-full md:w-1/2 lg:w-64">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="appearance-none w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-8 text-gray-700"
-          >
-            {complaintCategories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
-            size={20}
-          />
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        {/* Filter Controls */}
+        <div className="flex flex-col sm:flex-row gap-4 flex-grow">
+          <div className="relative w-full sm:w-1/2">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="appearance-none w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-8 text-sm md:text-base text-gray-700"
+            >
+              {complaintCategories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+              size={20}
+            />
+          </div>
+
+          <div className="relative w-full sm:w-1/2">
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="appearance-none w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-8 text-sm md:text-base text-gray-700"
+            >
+              {complaintStatuses.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+              size={20}
+            />
+          </div>
         </div>
 
-        <div className="relative w-full md:w-1/2 lg:w-64">
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="appearance-none w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-8 text-gray-700"
-          >
-            {complaintStatuses.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
-            size={20}
-          />
-        </div>
+        {/* Import CSV Button */}
+        <button
+          onClick={handleImportCSV}
+          className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white  rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm md:text-base whitespace-nowrap"
+        >
+          <FileUp size={18} className="mr-2" />
+          <span>Import CSV</span>
+        </button>
       </div>
 
       {filteredComplaints.length === 0 ? (
         <div className="p-4 text-center text-gray-600">
-          <p>
+          <p className="text-sm md:text-base">
             Tidak ada komplain dengan kategori atau status yang dipilih. Cobalah
             memilih kategori atau status lainnya.
           </p>
@@ -437,25 +453,25 @@ const ComplaintList = () => {
           {filteredComplaints.map((item, index) => (
             <Link
               key={index}
-              className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md"
+              className="flex items-center justify-between gap-4 bg-white p-3 md:p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
               to="/complaint-detail"
             >
-              <div className="flex items-center gap-4 overflow-hidden">
-                <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+              <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
                   <div className="w-full h-full bg-gray-300 rounded-full"></div>
                 </div>
                 <div className="flex-grow overflow-hidden">
-                  <h3 className="font-medium text-gray-900 truncate">
+                  <h3 className="font-medium text-gray-900 truncate text-sm md:text-base">
                     {item.name}
                   </h3>
-                  <p className="text-sm text-gray-600 truncate max-w-full">
+                  <p className="text-xs md:text-sm text-gray-600 truncate max-w-full">
                     {item.complaint}
                   </p>
                 </div>
               </div>
               <div className="flex items-center">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                  className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium whitespace-nowrap ${
                     item.status === "PROGRESS"
                       ? "bg-yellow-100 text-yellow-800"
                       : item.status === "SELESAI"
@@ -463,7 +479,11 @@ const ComplaintList = () => {
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {item.status}
+                  {
+                    complaintStatuses.find(
+                      (status) => status.value === item.status
+                    )?.label
+                  }
                 </span>
               </div>
             </Link>
